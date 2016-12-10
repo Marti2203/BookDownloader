@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.NameLabel = new System.Windows.Forms.Label();
-            this.NameTextBox = new System.Windows.Forms.TextBox();
+            this.SearchNameTextBox = new System.Windows.Forms.TextBox();
             this.ElementsDataView = new System.Windows.Forms.DataGridView();
             this.FindButton = new System.Windows.Forms.Button();
             this.PageTextBox = new System.Windows.Forms.TextBox();
             this.PageLabel = new System.Windows.Forms.Label();
-            this.HTMLOutput = new System.Windows.Forms.TextBox();
+            this.OutputTextBox = new System.Windows.Forms.TextBox();
             this.FilterButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ElementsDataView)).BeginInit();
             this.SuspendLayout();
@@ -52,11 +52,11 @@
             // 
             // NameTextBox
             // 
-            this.NameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.NameTextBox.Location = new System.Drawing.Point(53, 38);
-            this.NameTextBox.Name = "NameTextBox";
-            this.NameTextBox.Size = new System.Drawing.Size(113, 20);
-            this.NameTextBox.TabIndex = 2;
+            this.SearchNameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.SearchNameTextBox.Location = new System.Drawing.Point(53, 38);
+            this.SearchNameTextBox.Name = "NameTextBox";
+            this.SearchNameTextBox.Size = new System.Drawing.Size(113, 20);
+            this.SearchNameTextBox.TabIndex = 2;
             // 
             // ElementsDataView
             // 
@@ -69,9 +69,9 @@
             // 
             // FindButton
             // 
-            this.FindButton.Location = new System.Drawing.Point(172, 48);
+            this.FindButton.Location = new System.Drawing.Point(172, 38);
             this.FindButton.Name = "FindButton";
-            this.FindButton.Size = new System.Drawing.Size(72, 26);
+            this.FindButton.Size = new System.Drawing.Size(72, 48);
             this.FindButton.TabIndex = 4;
             this.FindButton.Text = "Find Books";
             this.FindButton.UseVisualStyleBackColor = true;
@@ -93,22 +93,23 @@
             this.PageLabel.TabIndex = 6;
             this.PageLabel.Text = "Page";
             // 
-            // HTMLOutput
+            // OutputTextBox
             // 
-            this.HTMLOutput.Location = new System.Drawing.Point(740, 87);
-            this.HTMLOutput.Multiline = true;
-            this.HTMLOutput.Name = "HTMLOutput";
-            this.HTMLOutput.Size = new System.Drawing.Size(389, 486);
-            this.HTMLOutput.TabIndex = 7;
+            this.OutputTextBox.Location = new System.Drawing.Point(740, 87);
+            this.OutputTextBox.Multiline = true;
+            this.OutputTextBox.Name = "OutputTextBox";
+            this.OutputTextBox.Size = new System.Drawing.Size(389, 486);
+            this.OutputTextBox.TabIndex = 7;
             // 
             // FilterButton
             // 
-            this.FilterButton.Location = new System.Drawing.Point(277, 48);
+            this.FilterButton.Location = new System.Drawing.Point(266, 38);
             this.FilterButton.Name = "FilterButton";
-            this.FilterButton.Size = new System.Drawing.Size(98, 29);
+            this.FilterButton.Size = new System.Drawing.Size(132, 46);
             this.FilterButton.TabIndex = 8;
-            this.FilterButton.Text = "Filter Results";
+            this.FilterButton.Text = "Filter Results And Download\r\n";
             this.FilterButton.UseVisualStyleBackColor = true;
+            this.FilterButton.Click += new System.EventHandler(this.FilterButton_Click);
             // 
             // MainForm
             // 
@@ -116,16 +117,15 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1141, 578);
             this.Controls.Add(this.FilterButton);
-            this.Controls.Add(this.HTMLOutput);
+            this.Controls.Add(this.OutputTextBox);
             this.Controls.Add(this.PageLabel);
             this.Controls.Add(this.PageTextBox);
             this.Controls.Add(this.FindButton);
             this.Controls.Add(this.ElementsDataView);
-            this.Controls.Add(this.NameTextBox);
+            this.Controls.Add(this.SearchNameTextBox);
             this.Controls.Add(this.NameLabel);
             this.Name = "MainForm";
             this.Text = "MainForm";
-            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ElementsDataView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -134,12 +134,12 @@
 
         #endregion
         private System.Windows.Forms.Label NameLabel;
-        private System.Windows.Forms.TextBox NameTextBox;
+        private System.Windows.Forms.TextBox SearchNameTextBox;
         private System.Windows.Forms.DataGridView ElementsDataView;
         private System.Windows.Forms.Button FindButton;
         private System.Windows.Forms.TextBox PageTextBox;
         private System.Windows.Forms.Label PageLabel;
-        private System.Windows.Forms.TextBox HTMLOutput;
+        private System.Windows.Forms.TextBox OutputTextBox;
         private System.Windows.Forms.Button FilterButton;
     }
 }
