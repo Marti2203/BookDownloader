@@ -50,17 +50,19 @@
             this.NameLabel.Text = "Name";
             this.NameLabel.UseMnemonic = false;
             // 
-            // NameTextBox
+            // SearchNameTextBox
             // 
             this.SearchNameTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.SearchNameTextBox.Location = new System.Drawing.Point(53, 38);
-            this.SearchNameTextBox.Name = "NameTextBox";
+            this.SearchNameTextBox.Name = "SearchNameTextBox";
             this.SearchNameTextBox.Size = new System.Drawing.Size(113, 20);
             this.SearchNameTextBox.TabIndex = 2;
             // 
             // ElementsDataView
             // 
+            this.ElementsDataView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.ElementsDataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.ElementsDataView.Cursor = System.Windows.Forms.Cursors.Hand;
             this.ElementsDataView.Location = new System.Drawing.Point(53, 87);
             this.ElementsDataView.Name = "ElementsDataView";
             this.ElementsDataView.Size = new System.Drawing.Size(681, 486);
@@ -103,7 +105,7 @@
             // 
             // FilterButton
             // 
-            this.FilterButton.Location = new System.Drawing.Point(266, 38);
+            this.FilterButton.Location = new System.Drawing.Point(277, 38);
             this.FilterButton.Name = "FilterButton";
             this.FilterButton.Size = new System.Drawing.Size(132, 46);
             this.FilterButton.TabIndex = 8;

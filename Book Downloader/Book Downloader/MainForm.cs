@@ -167,9 +167,8 @@ namespace Book_Downloader
 
         private void Download(DataGridViewCellEventArgs e)
         {
-            using (DownloadSession client = 
-                new DownloadSession(new Uri(OutputTextBox.Text),
-                ((string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value) + "." + ((string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value)))
+            using (DownloadSession client =
+                new DownloadSession(new Uri(OutputTextBox.Text),FileName(e)))
             {
                 IsDownloading = true;
 
@@ -177,6 +176,10 @@ namespace Book_Downloader
                 client.DownloadFileCompleted += DownloadCompleted;
             }
         }
+
+        private string FileName(DataGridViewCellEventArgs e) =>
+            ((string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value) + "." + ((string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value);
+        
 
         private void FilterButton_Click(object sender, EventArgs e)
         {

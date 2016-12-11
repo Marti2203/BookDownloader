@@ -11,16 +11,11 @@ namespace Book_Downloader
 {
     class DownloadSession:WebClient
     {
-        string fileName;
+        public string FileName { get; private set; }
         public DownloadSession(Uri address,string fileName):base()
         {
-            this.fileName = fileName;
+            FileName = fileName;
             DownloadFileAsync(address, fileName);
-            DownloadFileCompleted += DownloadCompleted;
-        }
-        public void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            File.Move(fileName, @"D:\Books");
         }
     }
 }

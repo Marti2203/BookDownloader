@@ -11,8 +11,8 @@ namespace Book_Downloader
     {
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-           
-            OutputTextBox.Text = string.Format("Current Progress :{0}% {1}", e.ProgressPercentage,sender);
+
+            OutputTextBox.Text = string.Format("Current Progress :{0}% {1}", e.ProgressPercentage, ((DownloadSession)sender).FileName);
         }
 
         public void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
@@ -23,9 +23,11 @@ namespace Book_Downloader
             if (e.Error != null)
                 OutputTextBox.AppendText("Failed" + e.Error.StackTrace);
             else
+            {
                 OutputTextBox.Text = "DONE";
-            
-                IsDownloading = false;
+                File.Move(((DownloadSession)sender).FileName, MainFormResources.DownloadLocation);
+            }
+            IsDownloading = false;
         }
 
     }
