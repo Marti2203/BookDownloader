@@ -117,4 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DownloadButton" xml:space="preserve">
+    <value />
+  </data>
+  <data name="DownloadLocation" xml:space="preserve">
+    <value>"D:\Books\"</value>
+  </data>
+  <data name="DownloadProgress" xml:space="preserve">
+    <value />
+  </data>
+  <data name="FileLabel" xml:space="preserve">
+    <value />
+  </data>
+  <data name="FilterButton" xml:space="preserve">
+    <value />
+  </data>
+  <data name="FindButton" xml:space="preserve">
+    <value />
+  </data>
+  <data name="PageLabel" xml:space="preserve">
+    <value />
+  </data>
 </root>

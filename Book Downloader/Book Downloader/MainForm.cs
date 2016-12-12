@@ -10,29 +10,21 @@ using System.Collections.Generic;
 
 namespace Book_Downloader
 {
-    public partial class MainForm : Form
+    public partial class MainFormController : Form
     {
         private const string _address = "http://gen.lib.rus.ec/search.php?&req={0}&phrase=1&view=simple&column=def&sort=def&sortmode=ASC&page={1}";
 
         private ILogger Logger { get; set; } = new BaseLogger();
 
         Dictionary<object, string> downloadingFileNames = new Dictionary<object, string>();
-        private bool isDownloading;
-        private bool IsDownloading
-        {
-            get { return isDownloading; }
-            set
-            {
-                isDownloading = value;
-                if (value == false)
-                    BringToFront();
-            }
-        }
+
+        private bool IsDownloading { get; set; }
+        private bool NotifyOnDone { get; set; } = true;
 
         private int count = 0;
         private int startingPage = 0;
 
-        public MainForm()
+        public MainFormController()
         {
             InitializeComponent();
             OutputTextBox.ScrollBars = ScrollBars.Both;
@@ -47,53 +39,43 @@ namespace Book_Downloader
             FilterButton.Enabled = false;
         }
 
+        #region Click Methods
         private void FindButton_Click(object sender, EventArgs e)
         {
             LockButtonsAndView();
+            LockInputFields();
             ElementsDataView.Rows.Clear();
             ElementsDataView.Refresh();
 
-            new Thread(Page(SearchNameTextBox.Text,PageTextBox.Text)).Start();
-
+            new Thread(() => Page(SearchNameTextBox.Text, PageTextBox.Text)).Start();
         }
 
-        private ThreadStart Page(string searchInput,string pageInput)
+        private void FilterButton_Click(object sender, EventArgs e)
         {
-            return () =>
+            LockButtonsAndView();
+            OutputTextBox.Clear();
+            new Thread(() =>
             {
-                string hyperText;
-                using (WebClient client = new WebClient())
-                {
-                    hyperText = client.DownloadString(string.Format(_address, searchInput, pageInput == "" ? "1" : pageInput));
-                }
+                Filter();
+                Filter();
 
-                Invoke(new MethodInvoker(() =>
-                {
-                    OutputTextBox.Text = string.Format(_address + "\n", searchInput, pageInput == "" ? "1" : pageInput);
-                    OutputTextBox.AppendText(hyperText);
-                }));
+                Invoke(new MethodInvoker(() => UnlockButtonsAndView()));
+            }).Start();
 
-                string[] bookNames = BookNames(hyperText);
-
-                string[] languageAndExtension = LanguageAndExtensions(hyperText);
-
-                string[] downloadAddresses = DownloadAddresses(hyperText);
-
-                count = downloadAddresses.Length;
-
-                Invoke(new MethodInvoker(() => OutputTextBox.AppendText(languageAndExtension.Length + " " + bookNames.Length + " " + downloadAddresses.Length)));
-
-                SetViewNamesAndAddresses(bookNames, downloadAddresses);
-                SetViewLanguageAndExtension(languageAndExtension);
-
-                Invoke(new MethodInvoker(() =>
-                {
-                    ElementsDataView.AutoResizeColumns();
-                    ElementsDataView.AutoResizeRows();
-                    UnlockButtonsAndView();
-                }));
-            };
         }
+
+        private void ElementsDataView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 1 && !IsDownloading)
+            {
+                LockButtonsAndView();
+                new Thread(() => PrepareForDownload(e)).Start();
+            }
+        }
+
+        private void NotifyBox_CheckedChanged(object sender, EventArgs e) => NotifyOnDone = !NotifyOnDone;
+
+        #endregion
 
         private void SetViewLanguageAndExtension(string[] languageAndExtension)
         {
@@ -130,69 +112,101 @@ namespace Book_Downloader
             }
         }
 
-        private void ElementsDataView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void PrepareForDownload(DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1 && !IsDownloading)
+            using (WebClient client = new WebClient())
             {
-                LockButtonsAndView();
-                new Thread(() =>
+                string hyperText = null;
+                TryGetWebPage:
+                try
                 {
-                    using (WebClient client = new WebClient())
+                    hyperText = client.DownloadString((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value);
+                }
+                catch (WebException ex)
+                {
+                    Invoke(new MethodInvoker(() =>
                     {
-                        string hyperText = null;
-                        TryGetWebPage:
-                        try
-                        {
-                            hyperText = client.DownloadString((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value);
-                        }
-                        catch (WebException ex)
-                        {
-                            Invoke(new MethodInvoker(() => { OutputTextBox.AppendText("Timed out"); OutputTextBox.AppendText(ex.StackTrace); }));
-                            goto TryGetWebPage;
-                        }
+                        OutputTextBox.AppendText("Timed out");
+                        OutputTextBox.AppendText(ex.StackTrace);
+                        OutputTextBox.AppendText(ex.InnerException?.StackTrace);
+                    }));
+                    goto TryGetWebPage;
+                }
 
-                        OutputTextBox.Invoke(new MethodInvoker(() => OutputTextBox.Text = hyperText));
-                        string key = DownloadKey(hyperText);
+                Invoke(new MethodInvoker(() => OutputTextBox.Text = "Received HTML"));
 
-                        Invoke(new MethodInvoker(()
-                        => OutputTextBox.Text = string
-                        .Format("{0}&key={1}", ((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value).Replace("ads", "get"), key.Remove(key.Length - 1))));
+                //Invoke(new MethodInvoker(() => OutputTextBox.Text = hyperText));
 
-                        ElementsDataView.Invoke(new MethodInvoker(() => ElementsDataView.Enabled = true));
-                        Invoke(new MethodInvoker(() => Download(e)));
-                    }
-                }).Start();
+                string downloadAddress = DownloadAddress(
+                    ((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value).Replace("ads", "get")
+                    , DownloadKey(hyperText));
+                string fileName = FileName
+                    ((string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value,
+                     (string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value);
+
+                //Invoke(new MethodInvoker(() => OutputTextBox.Text = downloadAddress));
+
+                Invoke(new MethodInvoker(() => Download(downloadAddress, fileName)));
             }
         }
 
-        private void Download(DataGridViewCellEventArgs e)
+        #region String Creators
+
+        private void Page(string searchInput, string pageInput)
+        {
+            string hyperText;
+            using (WebClient client = new WebClient())
+            {
+                hyperText = client.DownloadString(string.Format(_address, searchInput, pageInput == "" ? "1" : pageInput));
+            }
+
+            Invoke(new MethodInvoker(() => UnlockInputFields()));
+
+            string[] bookNames = BookNames(hyperText);
+
+            string[] languageAndExtension = LanguageAndExtensions(hyperText);
+
+            string[] downloadAddresses = DownloadAddresses(hyperText);
+
+            count = downloadAddresses.Length;
+
+            //Invoke(new MethodInvoker(() =>
+            //{
+            //    OutputTextBox.Text = string.Format(_address + "\n", searchInput, pageInput == "" ? "1" : pageInput);
+            //    OutputTextBox.AppendText(hyperText);
+            //    OutputTextBox.AppendText(languageAndExtension.Length + " " + bookNames.Length + " " + downloadAddresses.Length);
+            //}));
+
+            SetViewNamesAndAddresses(bookNames, downloadAddresses);
+            SetViewLanguageAndExtension(languageAndExtension);
+
+            Invoke(new MethodInvoker(() =>
+            {
+                ElementsDataView.AutoResizeColumns();
+                ElementsDataView.AutoResizeRows();
+                UnlockButtonsAndView();
+            }));
+        }
+
+        private string DownloadAddress(string address, string key)
+        {
+            return string.Format("{0}&key={1}", address, key.Remove(key.Length - 1));
+        }
+
+        private string FileName(string name, string extension) => ((name) + "." + (extension)).Replace(':', '_');
+
+        #endregion
+
+        private void Download(string downloadAddress, string fileName)
         {
             using (DownloadSession client =
-                new DownloadSession(new Uri(OutputTextBox.Text),FileName(e)))
+                new DownloadSession(new Uri(downloadAddress), fileName))
             {
                 IsDownloading = true;
 
                 client.DownloadProgressChanged += DownloadProgressChanged;
                 client.DownloadFileCompleted += DownloadCompleted;
             }
-        }
-
-        private string FileName(DataGridViewCellEventArgs e) =>
-            ((string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value) + "." + ((string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value);
-        
-
-        private void FilterButton_Click(object sender, EventArgs e)
-        {
-            LockButtonsAndView();
-            OutputTextBox.Clear();
-            new Thread(() =>
-            {
-                Filter();
-                Filter();
-
-                Invoke(new MethodInvoker(() => UnlockButtonsAndView()));
-            }).Start();
-
         }
 
         private void Filter()
@@ -205,11 +219,13 @@ namespace Book_Downloader
             }
         }
 
+        #region Lock/Unlock
         private void LockButtonsAndView()
         {
             ElementsDataView.Enabled = false;
             FilterButton.Enabled = false;
             FindButton.Enabled = false;
+            NotifyBox.Enabled = false;
         }
 
         private void UnlockButtonsAndView()
@@ -217,7 +233,20 @@ namespace Book_Downloader
             ElementsDataView.Enabled = true;
             FilterButton.Enabled = true;
             FindButton.Enabled = true;
+            NotifyBox.Enabled = true;
         }
 
+        private void LockInputFields()
+        {
+            SearchNameTextBox.Enabled = false;
+            PageTextBox.Enabled = false;
+        }
+
+        private void UnlockInputFields()
+        {
+            SearchNameTextBox.Enabled = true;
+            PageTextBox.Enabled = true;
+        }
+        #endregion 
     }
 }

@@ -7,27 +7,38 @@ using System.IO;
 
 namespace Book_Downloader
 {
-    public partial class MainForm : Form
+    public partial class MainFormController : Form
     {
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-
             OutputTextBox.Text = string.Format("Current Progress :{0}% {1}", e.ProgressPercentage, ((DownloadSession)sender).FileName);
         }
 
         public void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
+            UnlockButtonsAndView();
+
             OutputTextBox.Clear();
             if (e.Cancelled)
                 OutputTextBox.AppendText("Cancelled?!");
             if (e.Error != null)
-                OutputTextBox.AppendText("Failed" + e.Error.StackTrace);
+                OutputTextBox.AppendText("Failed" + e.Error?.StackTrace + e.Error?.InnerException?.StackTrace);
             else
             {
                 OutputTextBox.Text = "DONE";
-                File.Move(((DownloadSession)sender).FileName, MainFormResources.DownloadLocation);
+                //File.Move(((DownloadSession)sender).FileName, @"D:\Books\");
             }
             IsDownloading = false;
+            if (NotifyOnDone)
+                Notify();
+            
+        }
+        
+        public void Notify()
+        {
+            this.WindowState = FormWindowState.Minimized;
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
         }
 
     }

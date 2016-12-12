@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Book_Downloader
 {
-    public partial class MainForm : Form
+    public partial class MainFormController : Form
     {
 
         private static string[] DownloadAddresses(string hyperText)
