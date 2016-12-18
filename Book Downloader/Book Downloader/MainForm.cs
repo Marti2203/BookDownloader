@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Threading;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Book_Downloader
 {
@@ -16,13 +17,21 @@ namespace Book_Downloader
 
         private ILogger Logger { get; set; } = new BaseLogger();
 
-        Dictionary<object, string> downloadingFileNames = new Dictionary<object, string>();
+        #region Information Booleans
 
-        private bool IsDownloading { get; set; }
+        private bool IsDownloading { get; set; } = false;
+
+        private bool HasFiltred { get; set; } = false;
+
         private bool NotifyOnDone { get; set; } = true;
 
-        private int count = 0;
-        private int startingPage = 0;
+        private bool HasNextPage { get; set; }
+
+        #endregion
+
+        public string CurrentPage { get; set; }
+
+        public string SearchText { get; set; }
 
         public MainFormController()
         {
@@ -40,23 +49,26 @@ namespace Book_Downloader
         }
 
         #region Click Methods
+
         private void FindButton_Click(object sender, EventArgs e)
         {
             LockButtonsAndView();
             LockInputFields();
             ElementsDataView.Rows.Clear();
             ElementsDataView.Refresh();
+            HasFiltred = false;
 
-            new Thread(() => Page(SearchNameTextBox.Text, PageTextBox.Text)).Start();
+            new Thread(() => CreatePage(SearchBox.Text, PageNumberBox.Text)).Start();
+
         }
 
         private void FilterButton_Click(object sender, EventArgs e)
         {
+            if (HasFiltred) return;
             LockButtonsAndView();
             OutputTextBox.Clear();
             new Thread(() =>
             {
-                Filter();
                 Filter();
 
                 Invoke(new MethodInvoker(() => UnlockButtonsAndView()));
@@ -69,11 +81,24 @@ namespace Book_Downloader
             if (e.ColumnIndex == 1 && !IsDownloading)
             {
                 LockButtonsAndView();
-                new Thread(() => PrepareForDownload(e)).Start();
+                OutputTextBox.Clear();
+
+                string fileName = CreateFileName(
+                    (string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value
+                    , (string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value);
+                new Thread(() =>
+                PrepareForDownload((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value, fileName)).Start();
             }
         }
 
-        private void NotifyBox_CheckedChanged(object sender, EventArgs e) => NotifyOnDone = !NotifyOnDone;
+        private void ChainDownloadButton_Click(object sender, EventArgs e)
+        {
+            CurrentPage = PageNumberBox.Text;
+            SearchText = SearchBox.Text;
+        }
+
+        private void NotifyBox_CheckedChanged(object sender, EventArgs e)
+            => NotifyOnDone = !NotifyOnDone;
 
         #endregion
 
@@ -112,47 +137,7 @@ namespace Book_Downloader
             }
         }
 
-        private void PrepareForDownload(DataGridViewCellEventArgs e)
-        {
-            using (WebClient client = new WebClient())
-            {
-                string hyperText = null;
-                TryGetWebPage:
-                try
-                {
-                    hyperText = client.DownloadString((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value);
-                }
-                catch (WebException ex)
-                {
-                    Invoke(new MethodInvoker(() =>
-                    {
-                        OutputTextBox.AppendText("Timed out");
-                        OutputTextBox.AppendText(ex.StackTrace);
-                        OutputTextBox.AppendText(ex.InnerException?.StackTrace);
-                    }));
-                    goto TryGetWebPage;
-                }
-
-                Invoke(new MethodInvoker(() => OutputTextBox.Text = "Received HTML"));
-
-                //Invoke(new MethodInvoker(() => OutputTextBox.Text = hyperText));
-
-                string downloadAddress = DownloadAddress(
-                    ((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value).Replace("ads", "get")
-                    , DownloadKey(hyperText));
-                string fileName = FileName
-                    ((string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value,
-                     (string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value);
-
-                //Invoke(new MethodInvoker(() => OutputTextBox.Text = downloadAddress));
-
-                Invoke(new MethodInvoker(() => Download(downloadAddress, fileName)));
-            }
-        }
-
-        #region String Creators
-
-        private void Page(string searchInput, string pageInput)
+        private void CreatePage(string searchInput, string pageInput)
         {
             string hyperText;
             using (WebClient client = new WebClient())
@@ -162,20 +147,13 @@ namespace Book_Downloader
 
             Invoke(new MethodInvoker(() => UnlockInputFields()));
 
-            string[] bookNames = BookNames(hyperText);
+            string[] lines = hyperText.Split('\n');
 
-            string[] languageAndExtension = LanguageAndExtensions(hyperText);
+            string[] bookNames = CreateBookNames(lines);
+            string[] languageAndExtension = CreateLanguageAndExtensions(lines);
+            string[] downloadAddresses = CreateDownloadAddresses(lines);
 
-            string[] downloadAddresses = DownloadAddresses(hyperText);
-
-            count = downloadAddresses.Length;
-
-            //Invoke(new MethodInvoker(() =>
-            //{
-            //    OutputTextBox.Text = string.Format(_address + "\n", searchInput, pageInput == "" ? "1" : pageInput);
-            //    OutputTextBox.AppendText(hyperText);
-            //    OutputTextBox.AppendText(languageAndExtension.Length + " " + bookNames.Length + " " + downloadAddresses.Length);
-            //}));
+            HasNextPage = CheckForNextPage(lines.Last());
 
             SetViewNamesAndAddresses(bookNames, downloadAddresses);
             SetViewLanguageAndExtension(languageAndExtension);
@@ -188,17 +166,44 @@ namespace Book_Downloader
             }));
         }
 
-        private string DownloadAddress(string address, string key)
+        private string CreateDownloadAddress(string address, string key)
+            => string.Format("{0}&key={1}", address.Replace("ads.php","get.php"), key.Remove(key.Length - 1));
+
+        private string CreateFileName(string name, string extension)
+            => ((name) + "." + (extension)).Replace(':', '_');
+
+        private void PrepareForDownload(string downloadAddress, string fileName)
         {
-            return string.Format("{0}&key={1}", address, key.Remove(key.Length - 1));
+            using (WebClient client = new WebClient())
+            {
+                string hyperText = null;
+                TryGetWebPage:
+                try
+                {
+                    hyperText = client.DownloadString(downloadAddress);
+                }
+                catch (WebException ex)
+                {
+                    Invoke(new MethodInvoker(() =>
+                    {
+                        OutputTextBox.AppendText("Timed out");
+                        OutputTextBox.AppendText(ex.StackTrace);
+                        OutputTextBox.AppendText(ex.InnerException?.StackTrace);
+                    }));
+                    goto TryGetWebPage;
+                }
+
+                Download(CreateDownloadAddress(downloadAddress, DownloadKey(hyperText)), fileName);
+            }
         }
-
-        private string FileName(string name, string extension) => ((name) + "." + (extension)).Replace(':', '_');
-
-        #endregion
 
         private void Download(string downloadAddress, string fileName)
         {
+            if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + fileName))
+            {
+                OutputTextBox.Text = "File Exists";
+                return;
+            }
             using (DownloadSession client =
                 new DownloadSession(new Uri(downloadAddress), fileName))
             {
@@ -211,12 +216,19 @@ namespace Book_Downloader
 
         private void Filter()
         {
-            for (int i = 0; i < ElementsDataView.Rows.Count; i++)
+            Dictionary<string, int> books = new Dictionary<string, int>();
+
+            for (int i = 0; i < ElementsDataView.Rows.Count;i++)
             {
                 if (ElementsDataView[2, i].Value == null) continue;
                 if (!ElementsDataView[2, i].Value.Equals("English"))
+                {
                     Invoke(new MethodInvoker(() => { ElementsDataView.Rows.Remove(ElementsDataView.Rows[i]); }));
+                    i--;
+                }
             }
+
+            
         }
 
         #region Lock/Unlock
@@ -238,15 +250,16 @@ namespace Book_Downloader
 
         private void LockInputFields()
         {
-            SearchNameTextBox.Enabled = false;
-            PageTextBox.Enabled = false;
+            SearchBox.Enabled = false;
+            PageNumberBox.Enabled = false;
         }
 
         private void UnlockInputFields()
         {
-            SearchNameTextBox.Enabled = true;
-            PageTextBox.Enabled = true;
+            SearchBox.Enabled = true;
+            PageNumberBox.Enabled = true;
         }
-        #endregion 
+        #endregion
+
     }
 }

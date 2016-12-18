@@ -10,26 +10,23 @@ namespace Book_Downloader
     public partial class MainFormController : Form
     {
 
-        private static string[] DownloadAddresses(string hyperText)
-        => hyperText
-                .Split('\n')
+        private static string[] CreateDownloadAddresses(string[] lines)
+        => lines
                 .Where(element => element.Contains("http://libgen.io/ads.php?md5="))
                 .Select(element => element.Split('\'')[1])
                 .ToArray();
 
 
-        private static string[] LanguageAndExtensions(string hyperText)
-        => hyperText
-                .Split('\n')
+        private static string[] CreateLanguageAndExtensions(string[] lines)
+        => lines
                 .Where(element => element.Contains("<td nowrap"))
                 .Where((element, index) => index % 2 == 1)
                 .Select(element => element.Split('<', '>')[2])
                 .ToArray();
 
 
-        private static string[] BookNames(string hyperText)
-        => hyperText
-            .Split('\n')
+        private static string[] CreateBookNames(string[] lines)
+        => lines
             .Where(element => element.Contains("<td width="))                       
             .Select(element =>
                         {
@@ -64,6 +61,10 @@ namespace Book_Downloader
                             return result.Trim();
                         })
             .ToArray();
+
+        private bool CheckForNextPage(string line) 
+            => line
+                .StartsWith("< table width = \"100%\" >");
 
         private static string DownloadKey(string hyperText)
         => hyperText

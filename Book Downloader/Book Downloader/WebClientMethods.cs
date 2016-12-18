@@ -16,21 +16,29 @@ namespace Book_Downloader
 
         public void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            UnlockButtonsAndView();
+            Invoke(new MethodInvoker(() =>
+            {
+                UnlockButtonsAndView();
+                OutputTextBox.Clear();
+            }));
 
-            OutputTextBox.Clear();
             if (e.Cancelled)
                 OutputTextBox.AppendText("Cancelled?!");
             if (e.Error != null)
+            {
                 OutputTextBox.AppendText("Failed" + e.Error?.StackTrace + e.Error?.InnerException?.StackTrace);
+                File.Delete(((DownloadSession)sender).FileName);
+            }
+            
             else
             {
                 OutputTextBox.Text = "DONE";
-                //File.Move(((DownloadSession)sender).FileName, @"D:\Books\");
+                File.Move(((DownloadSession)sender).FileName, Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + ((DownloadSession)sender).FileName);
             }
+
             IsDownloading = false;
             if (NotifyOnDone)
-                Notify();
+                Invoke(new MethodInvoker(()=>Notify()));
             
         }
         
