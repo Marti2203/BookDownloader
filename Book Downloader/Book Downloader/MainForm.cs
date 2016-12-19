@@ -8,6 +8,7 @@ using System.Net;
 using System.Threading;
 using System.Collections.Generic;
 using System.IO;
+using System.Collections;
 
 namespace Book_Downloader
 {
@@ -113,12 +114,9 @@ namespace Book_Downloader
         }
 
         private string CreateDownloadAddress(string address, string key)
-            => string.Format("{0}&key={1}", address.Replace("ads.php","get.php"), key.Remove(key.Length - 1));
+            => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
-        private string CreateFileName(string name, string extension)
-            => ((name) + "." + (extension)).Replace(':', '_');
-
-        private void PrepareForDownload(string downloadAddress, string fileName)
+        private void PrepareForDownload(string downloadAddress)
         {
             using (WebClient client = new WebClient())
             {
@@ -139,7 +137,7 @@ namespace Book_Downloader
                     goto TryGetWebPage;
                 }
 
-                Download(CreateDownloadAddress(downloadAddress, DownloadKey(hyperText)), fileName);
+                Download(CreateDownloadAddress(downloadAddress, DownloadKey(hyperText)), GetFileName(hyperText));
             }
         }
 
@@ -162,20 +160,22 @@ namespace Book_Downloader
 
         private void Filter()
         {
-            Dictionary<string, int> books = new Dictionary<string, int>();
-
-            for (int i = 0; i < ElementsDataView.Rows.Count;i++)
+            for (int i = 0; i < ElementsDataView.Rows.Count; i++)
             {
-                if (ElementsDataView[2, i].Value == null) continue;
-                if (!ElementsDataView[2, i].Value.Equals("English"))
+                if (GetLanguageFromDataGrid(i) != null && GetLanguageFromDataGrid(i) != "English")
                 {
                     Invoke(new MethodInvoker(() => { ElementsDataView.Rows.Remove(ElementsDataView.Rows[i]); }));
                     i--;
                 }
             }
-
-            
         }
+
+
+        private string GetLanguageFromDataGrid(int row)
+        => ElementsDataView["Language", row].Value as string; 
+        private string GetExtensionFromDataGrid(int row)
+        => ElementsDataView["Extension",row].Value as string;
+        
 
         #region Lock/Unlock
         private void LockButtonsAndView()

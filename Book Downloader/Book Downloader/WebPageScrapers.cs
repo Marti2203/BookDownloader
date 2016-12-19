@@ -22,12 +22,13 @@ namespace Book_Downloader
                 .Where(element => element.Contains("<td nowrap"))
                 .Where((element, index) => index % 2 == 1)
                 .Select(element => element.Split('<', '>')[2])
+                .Select(element => element.Trim())
                 .ToArray();
 
 
         private static string[] CreateBookNames(string[] lines)
         => lines
-            .Where(element => element.Contains("<td width="))                       
+            .Where(element => element.Contains("<td width="))
             .Select(element =>
                         {
                             StringBuilder builder = new StringBuilder();
@@ -62,16 +63,20 @@ namespace Book_Downloader
                         })
             .ToArray();
 
-        private bool CheckForNextPage(string line) 
-            => line
-                .StartsWith("< table width = \"100%\" >");
+        private bool CheckForNextPage(string line)
+            => line.StartsWith("< table width = \"100%\" >");
 
         private static string DownloadKey(string hyperText)
-        => hyperText
-            .Split('\n')
-            .Where(line => line.Contains("DOWNLOAD"))
-            .First()
-            .Split('>')[1]
-            .Split('=')[3];
+            => CombinedLine(hyperText)
+                .Split('>')[1]
+                .Split('=')[3];
+
+        private static string GetFileName(string hyperText)
+            => CombinedLine(hyperText)
+                .Split(new string[] { "value" }, StringSplitOptions.RemoveEmptyEntries)[1]
+                .Split('\"')[1];
+
+        private static string CombinedLine(string hypertext)
+            => hypertext.Split('\n').Where(line => line.Contains("DOWNLOAD")).First();
     }
 }

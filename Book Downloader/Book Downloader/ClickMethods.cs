@@ -43,11 +43,7 @@ namespace Book_Downloader
                 LockButtonsAndView();
                 OutputTextBox.Clear();
 
-                string fileName = CreateFileName(
-                    (string)ElementsDataView[e.ColumnIndex - 1, e.RowIndex].Value
-                    , (string)ElementsDataView[e.ColumnIndex + 2, e.RowIndex].Value);
-                new Thread(() =>
-                PrepareForDownload((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value, fileName)).Start();
+                new Thread(() =>PrepareForDownload((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value)).Start();
             }
         }
 
@@ -55,6 +51,7 @@ namespace Book_Downloader
         {
             CurrentPage = PageNumberBox.Text;
             SearchText = SearchBox.Text;
+#warning not done
         }
 
         private void NotifyBox_CheckedChanged(object sender, EventArgs e)

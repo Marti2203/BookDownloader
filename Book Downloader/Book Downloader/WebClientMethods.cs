@@ -1,4 +1,4 @@
-﻿#define Release
+﻿#define Debug
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -24,29 +24,34 @@ namespace Book_Downloader
 
             if (e.Cancelled)
                 OutputTextBox.AppendText("Cancelled?!");
+
             if (e.Error != null)
             {
                 OutputTextBox.AppendText("Failed" + e.Error?.StackTrace + e.Error?.InnerException?.StackTrace);
                 File.Delete(((DownloadSession)sender).FileName);
             }
-            
+
             else
             {
                 OutputTextBox.Text = "DONE";
+#if Debug
+
+#else
                 File.Move(((DownloadSession)sender).FileName, Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + ((DownloadSession)sender).FileName);
+#endif           
             }
 
             IsDownloading = false;
             if (NotifyOnDone)
-                Invoke(new MethodInvoker(()=>Notify()));
-            
+                Invoke(new MethodInvoker(() => Notify()));
+
         }
-        
+
         public void Notify()
         {
-            this.WindowState = FormWindowState.Minimized;
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+            WindowState = FormWindowState.Minimized;
+            Show();
+            WindowState = FormWindowState.Normal;
         }
 
     }
