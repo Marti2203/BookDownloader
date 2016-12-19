@@ -5,10 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
-using System.Threading;
 using System.Collections.Generic;
 using System.IO;
-using System.Collections;
 
 namespace Book_Downloader
 {
@@ -53,8 +51,8 @@ namespace Book_Downloader
         {
             for (int j = 0, i = 0; j < languageAndExtension.Length / 2; j++, i += 2)
             {
-                ElementsDataView[2, j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i] };
-                ElementsDataView[3, j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i + 1] };
+                ElementsDataView["Language", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i] };
+                ElementsDataView["Extension", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i + 1] };
             }
         }
 
@@ -168,16 +166,50 @@ namespace Book_Downloader
                     i--;
                 }
             }
+
+            Dictionary<string, Tuple<int,BookPrecedence>> books = new Dictionary<string, Tuple<int,BookPrecedence>>();
+            //return;
+            for (int i = 0; i < ElementsDataView.Rows.Count; i++)
+            {
+                if (GetNameFromDataGrid(i) == null) continue;
+                if (!books.ContainsKey(GetNameFromDataGrid(i)))
+                {
+                    books.Add(GetNameFromDataGrid(i),new Tuple<int, BookPrecedence>
+                            (i, (BookPrecedence)Enum.Parse(typeof(BookPrecedence), GetExtensionFromDataGrid(i))));
+                }
+                else
+                {
+                    if((BookPrecedence) Enum.Parse(typeof(BookPrecedence),GetExtensionFromDataGrid(i)) >
+                        books[GetNameFromDataGrid(i)].Item2)
+                    {
+                        books[GetNameFromDataGrid(i)] = new Tuple<int, BookPrecedence>
+                            (i, (BookPrecedence)Enum.Parse(typeof(BookPrecedence), GetExtensionFromDataGrid(i)));
+                    }
+                }
+            }
+
+            Stack<int> indexes = new Stack<int>();
+            foreach (int index in books.Values.Select(element => element.Item1).OrderBy(element=>element))
+            {
+                indexes.Push(index);
+            }
+
+            while (indexes.Count != 0)
+            {
+                Invoke(new MethodInvoker(()=>ElementsDataView.Rows.RemoveAt(indexes.Pop())));
+            }
         }
 
-
+        private string GetNameFromDataGrid(int row)
+        => ElementsDataView["Name", row].Value as string;
         private string GetLanguageFromDataGrid(int row)
         => ElementsDataView["Language", row].Value as string; 
         private string GetExtensionFromDataGrid(int row)
         => ElementsDataView["Extension",row].Value as string;
-        
+
 
         #region Lock/Unlock
+
         private void LockButtonsAndView()
         {
             ElementsDataView.Enabled = false;
@@ -205,6 +237,7 @@ namespace Book_Downloader
             SearchBox.Enabled = true;
             PageNumberBox.Enabled = true;
         }
+        
         #endregion
 
     }

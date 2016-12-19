@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseLogger.cs" />
+    <Compile Include="BookPrecedence.cs" />
     <Compile Include="ClickMethods.cs">
       <SubType>Form</SubType>
     </Compile>
