@@ -11,14 +11,14 @@ namespace Book_Downloader
     {
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            OutputTextBox.Text = string.Format("Current Progress :{0}% {1}", e.ProgressPercentage, ((DownloadSession)sender).FileName);
+            Invoke(new MethodInvoker(() => OutputTextBox.Text = string.Format("Current Progress :{0}% {1}", e.ProgressPercentage, ((DownloadSession)sender).FileName)));
         }
 
         public void DownloadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             Invoke(new MethodInvoker(() =>
             {
-                UnlockButtonsAndView();
+                UnlockButtons();
                 OutputTextBox.Clear();
             }));
 
@@ -27,13 +27,17 @@ namespace Book_Downloader
 
             if (e.Error != null)
             {
-                OutputTextBox.AppendText("Failed" + e.Error?.StackTrace + e.Error?.InnerException?.StackTrace);
-                File.Delete(((DownloadSession)sender).FileName);
+                Invoke(new MethodInvoker(() => OutputTextBox
+                .AppendText("Failed"
+                    + e.Error?.StackTrace
+                    + e.Error?.InnerException?.StackTrace)));
+                if (File.Exists(((DownloadSession)sender).FileName))
+                    File.Delete(((DownloadSession)sender).FileName);
             }
 
             else
             {
-                OutputTextBox.Text = "DONE";
+                Invoke(new MethodInvoker(() => OutputTextBox.AppendText($"Done with {((DownloadSession)sender).FileName}")));
 #if Debug
 
 #else

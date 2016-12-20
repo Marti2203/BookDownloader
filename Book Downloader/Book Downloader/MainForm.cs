@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using System.Net;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Collections;
 
 namespace Book_Downloader
 {
@@ -24,10 +26,10 @@ namespace Book_Downloader
 
         private bool NotifyOnDone { get; set; } = true;
 
-        private bool HasNextPage { get; set; }
+        private bool HasNextPage { get; set; } = false;
 
         #endregion
-
+        
         public string CurrentPage { get; set; }
 
         public string SearchText { get; set; }
@@ -38,21 +40,22 @@ namespace Book_Downloader
             OutputTextBox.ScrollBars = ScrollBars.Both;
 
             #region Create Columns
-            ElementsDataView.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
-            ElementsDataView.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", ReadOnly = true });
-            ElementsDataView.Columns.Add(new DataGridViewTextBoxColumn { Name = "Language", ReadOnly = true });
-            ElementsDataView.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", ReadOnly = true });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Language", ReadOnly = true });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
             #endregion
 
             FilterButton.Enabled = false;
+            ChainDownloadButton.Enabled = false;
         }
 
         private void SetViewLanguageAndExtension(string[] languageAndExtension)
         {
             for (int j = 0, i = 0; j < languageAndExtension.Length / 2; j++, i += 2)
             {
-                ElementsDataView["Language", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i] };
-                ElementsDataView["Extension", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i + 1] };
+                Grid["Language", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i] };
+                Grid["Extension", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i + 1] };
             }
         }
 
@@ -66,9 +69,9 @@ namespace Book_Downloader
                     {
                         Logger.Signal(Severity.Medium, "Empty string", downloadAddresses[i]);
                     }
-                    ElementsDataView
+                    Grid
                     .Invoke(new MethodInvoker(()
-                    => ElementsDataView.Rows
+                    => Grid.Rows
                         .Add(Encoding
                             .UTF8
                             .GetString(Encoding
@@ -105,16 +108,34 @@ namespace Book_Downloader
 
             Invoke(new MethodInvoker(() =>
             {
-                ElementsDataView.AutoResizeColumns();
-                ElementsDataView.AutoResizeRows();
-                UnlockButtonsAndView();
+                Grid.AutoResizeColumns();
+                Grid.AutoResizeRows();
+                UnlockButtons();
             }));
         }
 
         private string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
-        private void PrepareForDownload(string downloadAddress)
+        private void BeginChainDownloading()
+        {
+            CurrentPage = PageNumberBox.Text;
+            SearchText = SearchBox.Text;
+
+            if (!HasFiltred)
+                Filter();
+
+            foreach (DataGridViewRow row in Grid.Rows)
+            {
+//#error Need to add downloading
+                //PrepareForSynchronousDownload(row.Cells[1].Value as string);
+            }
+            if (HasNextPage)
+                CreatePage(SearchText, CurrentPage=(int.Parse(CurrentPage)+1).ToString());        
+        }
+
+
+        private void PrepareForDownload(string page)
         {
             using (WebClient client = new WebClient())
             {
@@ -122,7 +143,7 @@ namespace Book_Downloader
                 TryGetWebPage:
                 try
                 {
-                    hyperText = client.DownloadString(downloadAddress);
+                    hyperText = client.DownloadString(page);
                 }
                 catch (WebException ex)
                 {
@@ -130,16 +151,16 @@ namespace Book_Downloader
                     {
                         OutputTextBox.AppendText("Timed out");
                         OutputTextBox.AppendText(ex.StackTrace);
-                        OutputTextBox.AppendText(ex.InnerException?.StackTrace);
+                        OutputTextBox.AppendText(ex?.InnerException?.StackTrace);
                     }));
                     goto TryGetWebPage;
                 }
 
-                Download(CreateDownloadAddress(downloadAddress, DownloadKey(hyperText)), GetFileName(hyperText));
+                Download(CreateDownloadAddress(page, DownloadKey(hyperText)), GetFileName(hyperText));
             }
         }
 
-        private void Download(string downloadAddress, string fileName)
+        private void Download(string fileLink, string fileName)
         {
             if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + fileName))
             {
@@ -147,7 +168,7 @@ namespace Book_Downloader
                 return;
             }
             using (DownloadSession client =
-                new DownloadSession(new Uri(downloadAddress), fileName))
+                new DownloadSession(new Uri(fileLink), fileName))
             {
                 IsDownloading = true;
 
@@ -158,71 +179,65 @@ namespace Book_Downloader
 
         private void Filter()
         {
-            for (int i = 0; i < ElementsDataView.Rows.Count; i++)
+            for (int i = 0; i < Grid.Rows.Count; i++)
             {
                 if (GetLanguageFromDataGrid(i) != null && GetLanguageFromDataGrid(i) != "English")
                 {
-                    Invoke(new MethodInvoker(() => { ElementsDataView.Rows.Remove(ElementsDataView.Rows[i]); }));
+                    Invoke(new MethodInvoker(() => { Grid.Rows.Remove(Grid.Rows[i]); }));
                     i--;
                 }
             }
 
-            Dictionary<string, Tuple<int,BookPrecedence>> books = new Dictionary<string, Tuple<int,BookPrecedence>>();
-            //return;
-            for (int i = 0; i < ElementsDataView.Rows.Count; i++)
+            Dictionary<string, Tuple<DataGridViewRow, BookPrecedence>> books = new Dictionary<string, Tuple<DataGridViewRow, BookPrecedence>>();
+
+            for (int i = 0; i < Grid.Rows.Count; i++)
             {
-                if (GetNameFromDataGrid(i) == null) continue;
-                if (!books.ContainsKey(GetNameFromDataGrid(i)))
+                if (GetNameFromGrid(i) == null) continue;
+                BookPrecedence value = (BookPrecedence)Enum.Parse(typeof(BookPrecedence), Grid["Extension", i].Value as string);
+                string name = GetNameFromGrid(i);
+
+                if (!books.ContainsKey(name))
                 {
-                    books.Add(GetNameFromDataGrid(i),new Tuple<int, BookPrecedence>
-                            (i, (BookPrecedence)Enum.Parse(typeof(BookPrecedence), GetExtensionFromDataGrid(i))));
+                    books.Add(name, new Tuple<DataGridViewRow, BookPrecedence>(Grid.Rows[i], value));
                 }
-                else
+                else if (value > books[name].Item2)
                 {
-                    if((BookPrecedence) Enum.Parse(typeof(BookPrecedence),GetExtensionFromDataGrid(i)) >
-                        books[GetNameFromDataGrid(i)].Item2)
-                    {
-                        books[GetNameFromDataGrid(i)] = new Tuple<int, BookPrecedence>
-                            (i, (BookPrecedence)Enum.Parse(typeof(BookPrecedence), GetExtensionFromDataGrid(i)));
-                    }
+                    books[name] = new Tuple<DataGridViewRow, BookPrecedence>(Grid.Rows[i], value);
                 }
+
             }
 
-            Stack<int> indexes = new Stack<int>();
-            foreach (int index in books.Values.Select(element => element.Item1).OrderBy(element=>element))
+            DataGridViewRow[] uniqueElements = books.Values.Select(element => element.Item1).ToArray();
+
+            Invoke(new MethodInvoker(() => Grid.Rows.Clear()));
+            foreach(DataGridViewRow element in uniqueElements)
             {
-                indexes.Push(index);
+                Invoke(new MethodInvoker(() => Grid.Rows.Add(element)));
             }
 
-            while (indexes.Count != 0)
-            {
-                Invoke(new MethodInvoker(()=>ElementsDataView.Rows.RemoveAt(indexes.Pop())));
-            }
+            HasFiltred = true;
         }
 
-        private string GetNameFromDataGrid(int row)
-        => ElementsDataView["Name", row].Value as string;
-        private string GetLanguageFromDataGrid(int row)
-        => ElementsDataView["Language", row].Value as string; 
-        private string GetExtensionFromDataGrid(int row)
-        => ElementsDataView["Extension",row].Value as string;
+        private string GetNameFromGrid(int row) => Grid["Name", row].Value as string;
+        private string GetLanguageFromDataGrid(int row) => Grid["Language", row].Value as string;
+        private string GetExtensionFromDataGrid(int row) => Grid["Extension", row].Value as string;
 
 
         #region Lock/Unlock
 
-        private void LockButtonsAndView()
+        private void LockButtons()
         {
-            ElementsDataView.Enabled = false;
             FilterButton.Enabled = false;
             FindButton.Enabled = false;
+            ChainDownloadButton.Enabled = false;
             NotifyBox.Enabled = false;
         }
 
-        private void UnlockButtonsAndView()
+        private void UnlockButtons()
         {
-            ElementsDataView.Enabled = true;
             FilterButton.Enabled = true;
             FindButton.Enabled = true;
+            ChainDownloadButton.Enabled = true;
             NotifyBox.Enabled = true;
         }
 
@@ -237,7 +252,7 @@ namespace Book_Downloader
             SearchBox.Enabled = true;
             PageNumberBox.Enabled = true;
         }
-        
+
         #endregion
 
     }

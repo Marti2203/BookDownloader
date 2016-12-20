@@ -12,10 +12,10 @@ namespace Book_Downloader
     {
         private void FindButton_Click(object sender, EventArgs e)
         {
-            LockButtonsAndView();
+            LockButtons();
             LockInputFields();
-            ElementsDataView.Rows.Clear();
-            ElementsDataView.Refresh();
+            Grid.Rows.Clear();
+            Grid.Refresh();
             HasFiltred = false;
 
             new Thread(() => CreatePage(SearchBox.Text, PageNumberBox.Text)).Start();
@@ -25,34 +25,30 @@ namespace Book_Downloader
         private void FilterButton_Click(object sender, EventArgs e)
         {
             if (HasFiltred) return;
-            LockButtonsAndView();
+            LockButtons();
             OutputTextBox.Clear();
             new Thread(() =>
             {
                 Filter();
 
-                Invoke(new MethodInvoker(() => UnlockButtonsAndView()));
+                Invoke(new MethodInvoker(() => UnlockButtons()));
             }).Start();
 
         }
 
-        private void ElementsDataView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void Grid_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex == 1 && !IsDownloading)
             {
-                LockButtonsAndView();
+                LockButtons();
                 OutputTextBox.Clear();
 
-                new Thread(() =>PrepareForDownload((string)ElementsDataView[e.ColumnIndex, e.RowIndex].Value)).Start();
+                new Thread(() => PrepareForDownload((string)Grid[e.ColumnIndex, e.RowIndex].Value)).Start();
             }
         }
 
         private void ChainDownloadButton_Click(object sender, EventArgs e)
-        {
-            CurrentPage = PageNumberBox.Text;
-            SearchText = SearchBox.Text;
-#warning not done
-        }
+            => new Thread(() => { BeginChainDownloading(); }).Start();
 
         private void NotifyBox_CheckedChanged(object sender, EventArgs e)
             => NotifyOnDone = !NotifyOnDone;

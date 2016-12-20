@@ -30,7 +30,7 @@
         {
             this.NameLabel = new System.Windows.Forms.Label();
             this.SearchBox = new System.Windows.Forms.TextBox();
-            this.ElementsDataView = new System.Windows.Forms.DataGridView();
+            this.Grid = new System.Windows.Forms.DataGridView();
             this.FindButton = new System.Windows.Forms.Button();
             this.PageLabel = new System.Windows.Forms.Label();
             this.OutputTextBox = new System.Windows.Forms.TextBox();
@@ -38,7 +38,7 @@
             this.NotifyBox = new System.Windows.Forms.CheckBox();
             this.ChainDownloadButton = new System.Windows.Forms.Button();
             this.PageNumberBox = new System.Windows.Forms.NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)(this.ElementsDataView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -61,16 +61,20 @@
             this.SearchBox.Size = new System.Drawing.Size(113, 20);
             this.SearchBox.TabIndex = 2;
             // 
-            // ElementsDataView
+            // Grid
             // 
-            this.ElementsDataView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.ElementsDataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.ElementsDataView.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ElementsDataView.Location = new System.Drawing.Point(12, 87);
-            this.ElementsDataView.Name = "ElementsDataView";
-            this.ElementsDataView.Size = new System.Drawing.Size(1117, 486);
-            this.ElementsDataView.TabIndex = 3;
-            this.ElementsDataView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ElementsDataView_CellContentClick);
+            this.Grid.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.Grid.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.Sunken;
+            this.Grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.Grid.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Grid.Location = new System.Drawing.Point(12, 87);
+            this.Grid.MultiSelect = false;
+            this.Grid.Name = "Grid";
+            this.Grid.ReadOnly = true;
+            this.Grid.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Sunken;
+            this.Grid.Size = new System.Drawing.Size(1117, 486);
+            this.Grid.TabIndex = 3;
+            this.Grid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellContentClick);
             // 
             // FindButton
             // 
@@ -93,11 +97,11 @@
             // 
             // OutputTextBox
             // 
-            this.OutputTextBox.Location = new System.Drawing.Point(518, 38);
+            this.OutputTextBox.Location = new System.Drawing.Point(1135, 87);
             this.OutputTextBox.Multiline = true;
             this.OutputTextBox.Name = "OutputTextBox";
             this.OutputTextBox.ReadOnly = true;
-            this.OutputTextBox.Size = new System.Drawing.Size(389, 46);
+            this.OutputTextBox.Size = new System.Drawing.Size(136, 486);
             this.OutputTextBox.TabIndex = 7;
             // 
             // FilterButton
@@ -160,7 +164,7 @@
             this.AcceptButton = this.FindButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1141, 578);
+            this.ClientSize = new System.Drawing.Size(1278, 578);
             this.Controls.Add(this.PageNumberBox);
             this.Controls.Add(this.ChainDownloadButton);
             this.Controls.Add(this.NotifyBox);
@@ -168,12 +172,12 @@
             this.Controls.Add(this.OutputTextBox);
             this.Controls.Add(this.PageLabel);
             this.Controls.Add(this.FindButton);
-            this.Controls.Add(this.ElementsDataView);
+            this.Controls.Add(this.Grid);
             this.Controls.Add(this.SearchBox);
             this.Controls.Add(this.NameLabel);
             this.Name = "MainFormController";
             this.Text = "MainForm";
-            ((System.ComponentModel.ISupportInitialize)(this.ElementsDataView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Grid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -183,7 +187,7 @@
         #endregion
         private System.Windows.Forms.Label NameLabel;
         private System.Windows.Forms.TextBox SearchBox;
-        private System.Windows.Forms.DataGridView ElementsDataView;
+        private System.Windows.Forms.DataGridView Grid;
         private System.Windows.Forms.Button FindButton;
         private System.Windows.Forms.Label PageLabel;
         private System.Windows.Forms.TextBox OutputTextBox;
