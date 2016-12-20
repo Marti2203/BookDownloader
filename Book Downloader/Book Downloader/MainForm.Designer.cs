@@ -97,11 +97,11 @@
             // 
             // OutputTextBox
             // 
-            this.OutputTextBox.Location = new System.Drawing.Point(1135, 87);
+            this.OutputTextBox.Location = new System.Drawing.Point(518, 12);
             this.OutputTextBox.Multiline = true;
             this.OutputTextBox.Name = "OutputTextBox";
             this.OutputTextBox.ReadOnly = true;
-            this.OutputTextBox.Size = new System.Drawing.Size(136, 486);
+            this.OutputTextBox.Size = new System.Drawing.Size(611, 76);
             this.OutputTextBox.TabIndex = 7;
             // 
             // FilterButton
