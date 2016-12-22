@@ -39,6 +39,8 @@
             this.ChainDownloadButton = new System.Windows.Forms.Button();
             this.PageNumberBox = new System.Windows.Forms.NumericUpDown();
             this.ErrorTextBox = new System.Windows.Forms.TextBox();
+            this.OutputLabel = new System.Windows.Forms.Label();
+            this.ErrorLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).BeginInit();
             this.SuspendLayout();
@@ -98,7 +100,7 @@
             // 
             // OutputTextBox
             // 
-            this.OutputTextBox.Location = new System.Drawing.Point(803, 87);
+            this.OutputTextBox.Location = new System.Drawing.Point(803, 103);
             this.OutputTextBox.Multiline = true;
             this.OutputTextBox.Name = "OutputTextBox";
             this.OutputTextBox.ReadOnly = true;
@@ -169,12 +171,32 @@
             this.ErrorTextBox.Size = new System.Drawing.Size(463, 252);
             this.ErrorTextBox.TabIndex = 12;
             // 
+            // OutputLabel
+            // 
+            this.OutputLabel.AutoSize = true;
+            this.OutputLabel.Location = new System.Drawing.Point(804, 87);
+            this.OutputLabel.Name = "OutputLabel";
+            this.OutputLabel.Size = new System.Drawing.Size(37, 13);
+            this.OutputLabel.TabIndex = 13;
+            this.OutputLabel.Text = "Status";
+            // 
+            // ErrorLabel
+            // 
+            this.ErrorLabel.AutoSize = true;
+            this.ErrorLabel.Location = new System.Drawing.Point(807, 302);
+            this.ErrorLabel.Name = "ErrorLabel";
+            this.ErrorLabel.Size = new System.Drawing.Size(34, 13);
+            this.ErrorLabel.TabIndex = 14;
+            this.ErrorLabel.Text = "Errors";
+            // 
             // MainFormController
             // 
             this.AcceptButton = this.FindButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1278, 578);
+            this.Controls.Add(this.ErrorLabel);
+            this.Controls.Add(this.OutputLabel);
             this.Controls.Add(this.ErrorTextBox);
             this.Controls.Add(this.PageNumberBox);
             this.Controls.Add(this.ChainDownloadButton);
@@ -207,6 +229,8 @@
         private System.Windows.Forms.Button ChainDownloadButton;
         private System.Windows.Forms.NumericUpDown PageNumberBox;
         private System.Windows.Forms.TextBox ErrorTextBox;
+        private System.Windows.Forms.Label OutputLabel;
+        private System.Windows.Forms.Label ErrorLabel;
     }
 }
 
