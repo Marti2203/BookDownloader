@@ -38,6 +38,7 @@
             this.NotifyBox = new System.Windows.Forms.CheckBox();
             this.ChainDownloadButton = new System.Windows.Forms.Button();
             this.PageNumberBox = new System.Windows.Forms.NumericUpDown();
+            this.ErrorTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).BeginInit();
             this.SuspendLayout();
@@ -72,7 +73,7 @@
             this.Grid.Name = "Grid";
             this.Grid.ReadOnly = true;
             this.Grid.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Sunken;
-            this.Grid.Size = new System.Drawing.Size(1117, 486);
+            this.Grid.Size = new System.Drawing.Size(785, 486);
             this.Grid.TabIndex = 3;
             this.Grid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.Grid_CellContentClick);
             // 
@@ -97,11 +98,11 @@
             // 
             // OutputTextBox
             // 
-            this.OutputTextBox.Location = new System.Drawing.Point(518, 12);
+            this.OutputTextBox.Location = new System.Drawing.Point(803, 87);
             this.OutputTextBox.Multiline = true;
             this.OutputTextBox.Name = "OutputTextBox";
             this.OutputTextBox.ReadOnly = true;
-            this.OutputTextBox.Size = new System.Drawing.Size(611, 76);
+            this.OutputTextBox.Size = new System.Drawing.Size(463, 192);
             this.OutputTextBox.TabIndex = 7;
             // 
             // FilterButton
@@ -159,12 +160,22 @@
             0,
             0});
             // 
+            // ErrorTextBox
+            // 
+            this.ErrorTextBox.Location = new System.Drawing.Point(803, 321);
+            this.ErrorTextBox.Multiline = true;
+            this.ErrorTextBox.Name = "ErrorTextBox";
+            this.ErrorTextBox.ReadOnly = true;
+            this.ErrorTextBox.Size = new System.Drawing.Size(463, 252);
+            this.ErrorTextBox.TabIndex = 12;
+            // 
             // MainFormController
             // 
             this.AcceptButton = this.FindButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1278, 578);
+            this.Controls.Add(this.ErrorTextBox);
             this.Controls.Add(this.PageNumberBox);
             this.Controls.Add(this.ChainDownloadButton);
             this.Controls.Add(this.NotifyBox);
@@ -195,6 +206,7 @@
         private System.Windows.Forms.CheckBox NotifyBox;
         private System.Windows.Forms.Button ChainDownloadButton;
         private System.Windows.Forms.NumericUpDown PageNumberBox;
+        private System.Windows.Forms.TextBox ErrorTextBox;
     }
 }
 

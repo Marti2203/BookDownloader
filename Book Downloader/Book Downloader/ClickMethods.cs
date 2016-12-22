@@ -38,12 +38,12 @@ namespace Book_Downloader
 
         private void Grid_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == 1 && !IsDownloading)
+            if (e.ColumnIndex == 0 && !IsDownloading)
             {
                 LockButtons();
                 OutputTextBox.Clear();
 
-                new Thread(() => PrepareForDownload((string)Grid[e.ColumnIndex, e.RowIndex].Value)).Start();
+                new Thread(() => Download((string)Grid["Address", e.RowIndex].Value)).Start();
             }
         }
 

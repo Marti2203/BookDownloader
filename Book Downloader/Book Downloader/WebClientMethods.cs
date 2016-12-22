@@ -23,14 +23,18 @@ namespace Book_Downloader
             }));
 
             if (e.Cancelled)
-                OutputTextBox.AppendText("Cancelled?!");
+                ErrorTextBox.AppendText("Cancelled?!");
 
             if (e.Error != null)
             {
-                Invoke(new MethodInvoker(() => OutputTextBox
-                .AppendText("Failed"
-                    + e.Error?.StackTrace
-                    + e.Error?.InnerException?.StackTrace)));
+                Invoke(new MethodInvoker(() =>
+                {
+                    ErrorTextBox.Clear();
+                    ErrorTextBox.AppendText(e.Error.Message + '\n'
+                                + e.Error.StackTrace
+                                + e.Error?.InnerException?.Message
+                                + e.Error?.InnerException?.StackTrace);
+                }));
                 if (File.Exists(((DownloadSession)sender).FileName))
                     File.Delete(((DownloadSession)sender).FileName);
             }
