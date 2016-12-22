@@ -14,7 +14,7 @@ namespace Book_Downloader
 {
     public partial class MainFormController : Form
     {
-        private const string _address = "http://gen.lib.rus.ec/search.php?&req={0}&phrase=1&view=simple&column=def&sort=def&sortmode=ASC&page={1}";
+        private const string _address = "http://gen.lib.rus.ec/search.php?&req={0}&phrase=1&view=simple&column=def&sort=def&sortmode=ASC&page={1}&res=100";
 
         private ILogger Logger { get; set; } = new BaseLogger();
 

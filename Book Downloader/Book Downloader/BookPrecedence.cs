@@ -3,6 +3,6 @@
 
     public enum BookPrecedence
     {
-        lit, djvu, chm, epub, pdf
+        lit, djvu,mobi , chm, epub, pdf , zip
     }
 }
