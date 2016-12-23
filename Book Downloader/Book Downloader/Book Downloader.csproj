@@ -46,13 +46,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseLogger.cs" />
-    <Compile Include="BookPrecedence.cs" />
     <Compile Include="ClickMethods.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="DefaultPrecendce.cs" />
     <Compile Include="DownloadSession.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="IPrecedence.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

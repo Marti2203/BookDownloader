@@ -14,9 +14,11 @@ namespace Book_Downloader
 {
     public partial class MainFormController : Form
     {
-        private const string _address = "http://gen.lib.rus.ec/search.php?&req={0}&phrase=1&view=simple&column=def&sort=def&sortmode=ASC&page={1}&res=100";
+        private const string _address = "http://gen.lib.rus.ec/search.php?&req={0}&phrase=1&view=simple&column=def&sort=def&sortmode=ASC&page={1}&res={2}";
 
-        private ILogger Logger { get; set; } = new BaseLogger();
+        private readonly ILogger _logger;
+
+        private readonly IPrecedenceCreator _precedence;
 
         #region Information Booleans
 
@@ -34,10 +36,12 @@ namespace Book_Downloader
 
         public string SearchText { get; set; }
 
-        public MainFormController()
+        public MainFormController(IPrecedenceCreator precedence,ILogger logger)
         {
             InitializeComponent();
             OutputTextBox.ScrollBars = ScrollBars.Both;
+            _logger = logger;
+            _precedence = precedence;
 
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
@@ -67,7 +71,7 @@ namespace Book_Downloader
                 {
                     if (bookNames[i] == string.Empty)
                     {
-                        Logger.Signal(Severity.Medium, "Empty string", downloadAddresses[i]);
+                        _logger.Signal(Severity.Medium, "Empty string", downloadAddresses[i]);
                     }
                     Grid
                     .Invoke(new MethodInvoker(()
@@ -85,12 +89,13 @@ namespace Book_Downloader
             }
         }
 
-        private void CreatePage(string searchInput, string pageInput)
+        public void CreatePage(string searchText, string pageNumber)
         {
             string hyperText;
             using (WebClient client = new WebClient())
             {
-                hyperText = client.DownloadString(string.Format(_address, searchInput, pageInput == "" ? "1" : pageInput));
+                hyperText = client.DownloadString(string
+                    .Format(_address, searchText, pageNumber, SelectedBookCount));
             }
 
             Invoke(new MethodInvoker(() => UnlockInputFields()));
@@ -114,6 +119,9 @@ namespace Book_Downloader
             }));
         }
 
+        private string SelectedBookCount
+            => RadioPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text.Split(' ')[0];
+        
         private string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
@@ -147,7 +155,7 @@ namespace Book_Downloader
             }
         }
 
-        private void BeginChainDownloading()
+        public void BeginChainDownloading()
         {
             Invoke(new MethodInvoker(() => { LockButtons(); LockInputFields(); Grid.Enabled = false; }));
             CurrentPage = PageNumberBox.Text;
@@ -196,9 +204,10 @@ namespace Book_Downloader
                     {
                         OutputTextBox.AppendText($"Finished Downloading {downloadInfo.FileName}\n");
                     }));
-                    EndOfFor:;
+                    EndOfFor:
+
+                    ;
                 }
-                return;
                 currentHasNextPage = HasNextPage;
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
                 HasFiltred = false;
@@ -242,29 +251,29 @@ namespace Book_Downloader
                 }
             }
 
-            Dictionary<string, Tuple<DataGridViewRow, BookPrecedence>> books = new Dictionary<string, Tuple<DataGridViewRow, BookPrecedence>>();
+            Dictionary<string, Tuple<DataGridViewRow, int>> books = new Dictionary<string, Tuple<DataGridViewRow, int>>();
 
             for (int i = 0; i < Grid.Rows.Count; i++)
             {
                 if (GetNameFromGrid(i) == null) continue;
-                BookPrecedence value = (BookPrecedence)Enum.Parse(typeof(BookPrecedence), Grid["Extension", i].Value as string);
+                int precedenceValue = _precedence[GetExtensionFromDataGrid(i)]; 
                 string name = GetNameFromGrid(i);
 
                 if (!books.ContainsKey(name))
                 {
-                    books.Add(name, new Tuple<DataGridViewRow, BookPrecedence>(Grid.Rows[i], value));
+                    books.Add(name, new Tuple<DataGridViewRow, int>(Grid.Rows[i], precedenceValue));
                 }
-                else if (value > books[name].Item2)
+                else if (precedenceValue > books[name].Item2)
                 {
-                    books[name] = new Tuple<DataGridViewRow, BookPrecedence>(Grid.Rows[i], value);
+                    books[name] = new Tuple<DataGridViewRow, int>(Grid.Rows[i], precedenceValue);
                 }
 
             }
 
-            DataGridViewRow[] uniqueElements = books.Values.Select(element => element.Item1).ToArray();
+            DataGridViewRow[] uniqueRows = books.Values.Select(element => element.Item1).ToArray();
 
             Invoke(new MethodInvoker(() => Grid.Rows.Clear()));
-            foreach (DataGridViewRow element in uniqueElements)
+            foreach (DataGridViewRow element in uniqueRows)
             {
                 Invoke(new MethodInvoker(() => Grid.Rows.Add(element)));
             }

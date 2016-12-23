@@ -74,7 +74,7 @@ namespace Book_Downloader
         private static string GetFileName(string hyperText)
             => CombinedLine(hyperText)
                 .Split(new string[] { "value" }, StringSplitOptions.RemoveEmptyEntries)[1]
-                .Split('\"')[1].Substring(0,20);
+                .Split('\"')[1];
 
         private static string CombinedLine(string hypertext)
             => hypertext.Split('\n').Where(line => line.Contains("DOWNLOAD")).First();

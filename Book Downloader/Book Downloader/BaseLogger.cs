@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Book_Downloader
 {
 #warning Implement Logger
-    class BaseLogger : ILogger
+    class DefaultLogger : ILogger
     {
         public void Error(Severity severity, string message, params object[] elements)
         {
