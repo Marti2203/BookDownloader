@@ -36,7 +36,7 @@ namespace Book_Downloader
 
         public string SearchText { get; set; }
 
-        public MainFormController(IPrecedenceCreator precedence,ILogger logger)
+        public MainFormController(IPrecedenceCreator precedence, ILogger logger)
         {
             InitializeComponent();
             OutputTextBox.ScrollBars = ScrollBars.Both;
@@ -45,6 +45,7 @@ namespace Book_Downloader
 
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible= false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", ReadOnly = true, Visible = false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Language", ReadOnly = true });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
@@ -73,14 +74,10 @@ namespace Book_Downloader
                     {
                         _logger.Signal(Severity.Medium, "Empty string", downloadAddresses[i]);
                     }
-                    Grid
-                    .Invoke(new MethodInvoker(()
+                    string bookName = Encoding.UTF8.GetString(Encoding.Default.GetBytes(bookNames[i]));
+                    Invoke(new MethodInvoker(()
                     => Grid.Rows
-                        .Add(Encoding
-                            .UTF8
-                            .GetString(Encoding
-                                .Default
-                                .GetBytes(bookNames[i])).ToLower(), downloadAddresses[i])));
+                        .Add(bookName,CreateFilterName(bookName), downloadAddresses[i])));
                 }
                 catch (IndexOutOfRangeException ior)
                 {
@@ -89,6 +86,9 @@ namespace Book_Downloader
             }
         }
 
+        private string CreateFilterName(string bookName)
+            => bookName.ToLower();
+
         public void CreatePage(string searchText, string pageNumber)
         {
             string hyperText;
@@ -96,11 +96,12 @@ namespace Book_Downloader
             {
                 hyperText = client.DownloadString(string
                     .Format(_address, searchText, pageNumber, SelectedBookCount));
+                HasFiltred = false;
             }
 
             Invoke(new MethodInvoker(() => UnlockInputFields()));
 
-            string[] lines = hyperText.Split('\n');
+            string[] lines = hyperText.Split('\n').Select(element=>element.Trim()).Where(element=>element!=string.Empty).ToArray();
 
             string[] bookNames = CreateBookNames(lines);
             string[] languageAndExtension = CreateLanguageAndExtensions(lines);
@@ -121,7 +122,7 @@ namespace Book_Downloader
 
         private string SelectedBookCount
             => RadioPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text.Split(' ')[0];
-        
+
         private string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
@@ -210,7 +211,6 @@ namespace Book_Downloader
                 }
                 currentHasNextPage = HasNextPage;
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
-                HasFiltred = false;
             } while (currentHasNextPage);
             Invoke(new MethodInvoker(() => { UnlockButtons(); UnlockInputFields(); Grid.Enabled = true; }));
         }
@@ -255,9 +255,9 @@ namespace Book_Downloader
 
             for (int i = 0; i < Grid.Rows.Count; i++)
             {
-                if (GetNameFromGrid(i) == null) continue;
-                int precedenceValue = _precedence[GetExtensionFromDataGrid(i)]; 
-                string name = GetNameFromGrid(i);
+                if (GetFilterNameFromGrid(i) == null) continue;
+                int precedenceValue = _precedence[GetExtensionFromDataGrid(i)];
+                string name = GetFilterNameFromGrid(i);
 
                 if (!books.ContainsKey(name))
                 {
@@ -281,7 +281,7 @@ namespace Book_Downloader
             HasFiltred = true;
         }
 
-        private string GetNameFromGrid(int row) => Grid["Name", row].Value as string;
+        private string GetFilterNameFromGrid(int row) => Grid["Filter Name", row].Value as string;
         private string GetLanguageFromDataGrid(int row) => Grid["Language", row].Value as string;
         private string GetExtensionFromDataGrid(int row) => Grid["Extension", row].Value as string;
 

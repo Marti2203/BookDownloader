@@ -16,7 +16,6 @@ namespace Book_Downloader
             LockInputFields();
             Grid.Rows.Clear();
             Grid.Refresh();
-            HasFiltred = false;
 
             new Thread(() => CreatePage(SearchBox.Text, PageNumberBox.Text)).Start();
 

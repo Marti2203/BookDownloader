@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Book_Downloader
 {
-    class DownloadSession:WebClient
+    class DownloadSession : WebClient
     {
         public string FileName { get; private set; }
         public Uri Address { get; private set; }
