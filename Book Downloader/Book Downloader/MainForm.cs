@@ -176,7 +176,11 @@ namespace Book_Downloader
                         OutputTextBox.Text = $"File {downloadInfo.FileName} Exists";
                         continue;
                     }
-                    using (WebClient client = new WebClient())
+                    if (downloadInfo.FileName.Length>240)
+                    {
+                        LongPathDownload(downloadInfo.FileName);
+                    }
+                    else using (WebClient client = new WebClient())
                     {
                         Invoke(new MethodInvoker(() =>
                         {
@@ -213,6 +217,12 @@ namespace Book_Downloader
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
             } while (currentHasNextPage);
             Invoke(new MethodInvoker(() => { UnlockButtons(); UnlockInputFields(); Grid.Enabled = true; }));
+        }
+
+        private void LongPathDownload(dynamic fileName)
+        {
+#warning Long path download is not created
+            throw new NotImplementedException();
         }
 
         public void Download(string page)

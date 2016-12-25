@@ -132,7 +132,7 @@
             this.NotifyBox.AutoSize = true;
             this.NotifyBox.Checked = true;
             this.NotifyBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.NotifyBox.Location = new System.Drawing.Point(431, 40);
+            this.NotifyBox.Location = new System.Drawing.Point(431, 37);
             this.NotifyBox.Name = "NotifyBox";
             this.NotifyBox.Size = new System.Drawing.Size(99, 17);
             this.NotifyBox.TabIndex = 9;
