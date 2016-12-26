@@ -23,17 +23,17 @@ namespace Book_Downloader
             }));
 
             if (e.Cancelled)
-                Invoke(new MethodInvoker(() => OutputTextBox.Text="Cancelled downloading"));
+                Invoke(new MethodInvoker(() => OutputTextBox.Text=$"Cancelled downloading for {((DownloadSession)sender).FileName}"));
 
             if (e.Error != null)
             {
                 Invoke(new MethodInvoker(() =>
                 {
                     ErrorTextBox.Clear();
-                    ErrorTextBox.AppendText(e.Error.Message + '\n'
-                                + e.Error.StackTrace
-                                + e.Error?.InnerException?.Message
-                                + e.Error?.InnerException?.StackTrace);
+                    ErrorTextBox.AppendText($@"{e.Error.Message} 
+                    \n { e.Error.StackTrace}
+                    \n { e.Error?.InnerException?.Message }
+                    \n { e.Error?.InnerException?.StackTrace}");
                 }));
             }
 
