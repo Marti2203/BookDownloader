@@ -19,6 +19,14 @@ namespace Book_Downloader
         private readonly ILogger _logger;
 
         private readonly IPrecedenceCreator _precedence;
+        
+        private DownloadSession CurrentSession { get; set; }
+
+        private Thread ChainDownloadThread { get; set; }
+
+        private string CurrentPage { get; set; }
+
+        private string SearchText { get; set; }
 
         #region Information Booleans
 
@@ -26,102 +34,81 @@ namespace Book_Downloader
 
         private bool HasFiltred { get; set; } = false;
 
-        private bool NotifyOnDone { get; set; } = true;
-
         private bool HasNextPage { get; set; } = false;
 
         #endregion
 
-        public string CurrentPage { get; set; }
-
-        public string SearchText { get; set; }
-
         public MainFormController(IPrecedenceCreator precedence, ILogger logger)
         {
             InitializeComponent();
-            OutputTextBox.ScrollBars = ScrollBars.Both;
+
             _logger = logger;
             _precedence = precedence;
 
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
-            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible= false });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible = false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", ReadOnly = true, Visible = false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Language", ReadOnly = true });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
             #endregion
 
             FilterButton.Enabled = false;
+            StopAsyncButton.Enabled = false;
             ChainDownloadButton.Enabled = false;
+            StopChainDownloadButton.Enabled = false;
         }
 
-        private void SetViewLanguageAndExtension(string[] languageAndExtension)
-        {
-            for (int j = 0, i = 0; j < languageAndExtension.Length / 2; j++, i += 2)
-            {
-                Grid["Language", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i] };
-                Grid["Extension", j] = new DataGridViewTextBoxCell { Value = languageAndExtension[i + 1] };
-            }
-        }
-
-        private void SetViewNamesAndAddresses(string[] bookNames, string[] downloadAddresses)
+        private void SetView
+            (string[] bookNames, string[] filterBookNames, string[] downloadAddresses, string[] languages, string[] extensions)
         {
             for (int i = 0; i < downloadAddresses.Length; i++)
             {
                 try
                 {
-                    if (bookNames[i] == string.Empty)
-                    {
-                        _logger.Signal(Severity.Medium, "Empty string", downloadAddresses[i]);
-                    }
-                    string bookName = Encoding.UTF8.GetString(Encoding.Default.GetBytes(bookNames[i]));
                     Invoke(new MethodInvoker(()
-                    => Grid.Rows
-                        .Add(bookName,CreateFilterName(bookName), downloadAddresses[i])));
+                        => Grid.Rows
+                        .Add(bookNames[i], filterBookNames[i], downloadAddresses[i], languages[i], extensions[i])));
                 }
                 catch (IndexOutOfRangeException ior)
                 {
-                    throw new IndexOutOfRangeException(ior.Message + " " + i + " " + downloadAddresses.Length + " " + bookNames.Length);
+                    throw new IndexOutOfRangeException($"{ior.Message} {i} {downloadAddresses.Length} {bookNames.Length}");
                 }
             }
         }
-
-        private string CreateFilterName(string bookName)
-            => bookName.ToLower();
 
         public void CreatePage(string searchText, string pageNumber)
         {
             string hyperText;
             using (WebClient client = new WebClient())
             {
-                hyperText = client.DownloadString(string
-                    .Format(_address, searchText, pageNumber, SelectedBookCount));
+                hyperText = client.DownloadString(string.Format(_address, searchText, pageNumber, SelectedBookCount));
                 HasFiltred = false;
             }
 
-            Invoke(new MethodInvoker(() => UnlockInputFields()));
-
-            string[] lines = hyperText.Split('\n').Select(element=>element.Trim()).Where(element=>element!=string.Empty).ToArray();
+            string[] lines = hyperText.Split('\n').Select(element => element.Trim()).Where(element => element != string.Empty).ToArray();
 
             string[] bookNames = CreateBookNames(lines);
-            string[] languageAndExtension = CreateLanguageAndExtensions(lines);
+
+            if (bookNames.Any(element => element == string.Empty)) _logger.Warning(Severity.Medium, "Empty String:", searchText);
+
+            dynamic languageAndExtension = CreateLanguageAndExtensions(lines);
+
+            string[] languages = languageAndExtension.Languages;
+
+            string[] extensions = languageAndExtension.Extensions;
+
             string[] downloadAddresses = CreateDownloadAddresses(lines);
 
-            HasNextPage = CheckForNextPage(lines.Last());
+            string[] filterBookNames = bookNames.Select(element => CreateFilterName(element)).ToArray();
 
-            SetViewNamesAndAddresses(bookNames, downloadAddresses);
-            SetViewLanguageAndExtension(languageAndExtension);
+            HasNextPage = CheckForNextPage(lines);
 
-            Invoke(new MethodInvoker(() =>
-            {
-                Grid.AutoResizeColumns();
-                Grid.AutoResizeRows();
-                UnlockButtons();
-            }));
+            SetView(bookNames, filterBookNames, downloadAddresses, languages, extensions);
         }
 
-        private string SelectedBookCount
-            => RadioPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text.Split(' ')[0];
+        private string CreateFilterName(string bookName)
+            => bookName.ToLower();
 
         private string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
@@ -131,20 +118,28 @@ namespace Book_Downloader
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             using (WebClient client = new WebClient())
             {
+                int counter = 0;
                 string hyperText = null;
                 TryGetWebPage:
+                if (counter == 10)
+                {
+                    return null;
+                }
                 try
                 {
+                    Invoke(new MethodInvoker(() => ErrorTextBox.Clear()));
                     hyperText = client.DownloadString(page);
                 }
                 catch (WebException ex)
                 {
                     Invoke(new MethodInvoker(() =>
                     {
-                        OutputTextBox.AppendText("Timed out\n");
-                        OutputTextBox.AppendText(ex.StackTrace);
-                        OutputTextBox.AppendText(ex?.InnerException?.StackTrace);
+                        ErrorTextBox.AppendText("Timed out, will retry in 3 secs\n");
+                        ErrorTextBox.AppendText($"{ex.StackTrace}\n");
+                        ErrorTextBox.AppendText(ex?.InnerException?.StackTrace);
+                        Thread.Sleep(3000);
                     }));
+                    counter++;
                     goto TryGetWebPage;
                 }
 
@@ -158,33 +153,36 @@ namespace Book_Downloader
 
         public void BeginChainDownloading()
         {
-            Invoke(new MethodInvoker(() => { LockButtons(); LockInputFields(); Grid.Enabled = false; }));
-            CurrentPage = PageNumberBox.Text;
-            SearchText = SearchBox.Text;
+           CurrentPage = PageNumberBox.Text;
+           SearchText = SearchBox.Text;
             bool currentHasNextPage;
             do
             {
                 if (!HasFiltred)
                     Filter();
-
+                Invoke(new MethodInvoker(() =>
+                {
+                    OutputTextBox.AppendText($"Starting Page { CurrentPage }\n\n");
+                }));
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
                     if (row.Cells[0].Value == null) continue;
                     dynamic downloadInfo = CreateDownloadInfomration(row.Cells[1].Value as string);
+                    if (downloadInfo == null)
+                    {
+                        Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
+                        return;
+                    }
                     if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + downloadInfo.FileName))
                     {
                         OutputTextBox.Text = $"File {downloadInfo.FileName} Exists";
                         continue;
                     }
-                    if (downloadInfo.FileName.Length>240)
-                    {
-                        LongPathDownload(downloadInfo.FileName);
-                    }
-                    else using (WebClient client = new WebClient())
+                    using (WebClient client = new WebClient())
                     {
                         Invoke(new MethodInvoker(() =>
                         {
-                            OutputTextBox.AppendText($"Starting Download of {downloadInfo.FileName}\n");
+                            OutputTextBox.AppendText($"Starting Download of {downloadInfo.FileName}\n\n");
                         }));
                         try
                         {
@@ -195,12 +193,14 @@ namespace Book_Downloader
                             Invoke(new MethodInvoker(() =>
                             {
                                 ErrorTextBox.Clear();
+                                _logger.Error(Severity.HUGE, "Failed Download!!"
+                                    , downloadInfo.DownloadAddress, downloadInfo.FileName);
                                 ErrorTextBox.AppendText($"For File {downloadInfo.FileName}\n");
                                 ErrorTextBox.AppendText($"{we.Message}\n");
                                 ErrorTextBox.AppendText($"{we.StackTrace}\n");
                                 ErrorTextBox.AppendText($"{we?.InnerException?.Message}\n");
                                 ErrorTextBox.AppendText($"{we.InnerException?.StackTrace}\n");
-                                OutputTextBox.AppendText($"Download For {downloadInfo.FileName} failed.\n");
+                                OutputTextBox.AppendText($"Download For {downloadInfo.FileName} failed.\n\n");
                             }));
                             goto EndOfFor;
                         }
@@ -216,10 +216,9 @@ namespace Book_Downloader
                 currentHasNextPage = HasNextPage;
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
             } while (currentHasNextPage);
-            Invoke(new MethodInvoker(() => { UnlockButtons(); UnlockInputFields(); Grid.Enabled = true; }));
         }
 
-        private void LongPathDownload(dynamic fileName)
+        private void LongPathDownload(string fileName)
         {
 #warning Long path download is not created
             throw new NotImplementedException();
@@ -244,7 +243,9 @@ namespace Book_Downloader
                 new DownloadSession(new Uri(fileLink), fileName))
             {
                 IsDownloading = true;
-
+                CurrentSession = client;
+                StopAsyncButton.Enabled = true;
+                 
                 client.DownloadProgressChanged += DownloadProgressChanged;
                 client.DownloadFileCompleted += DownloadCompleted;
             }
@@ -291,6 +292,10 @@ namespace Book_Downloader
             HasFiltred = true;
         }
 
+
+        private string SelectedBookCount
+            => RadioPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text.Split(' ')[0];
+
         private string GetFilterNameFromGrid(int row) => Grid["Filter Name", row].Value as string;
         private string GetLanguageFromDataGrid(int row) => Grid["Language", row].Value as string;
         private string GetExtensionFromDataGrid(int row) => Grid["Extension", row].Value as string;
@@ -327,6 +332,7 @@ namespace Book_Downloader
         }
 
         #endregion
+
 
     }
 }

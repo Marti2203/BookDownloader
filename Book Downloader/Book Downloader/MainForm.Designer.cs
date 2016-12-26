@@ -47,6 +47,8 @@
             this.RadioPanel = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.NamePanel = new System.Windows.Forms.Panel();
+            this.StopAsyncButton = new System.Windows.Forms.Button();
+            this.StopChainDownloadButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).BeginInit();
             this.RadioPanel.SuspendLayout();
@@ -114,6 +116,7 @@
             this.OutputTextBox.Multiline = true;
             this.OutputTextBox.Name = "OutputTextBox";
             this.OutputTextBox.ReadOnly = true;
+            this.OutputTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.OutputTextBox.Size = new System.Drawing.Size(463, 192);
             this.OutputTextBox.TabIndex = 7;
             // 
@@ -138,7 +141,6 @@
             this.NotifyBox.TabIndex = 9;
             this.NotifyBox.Text = "Notify On Done";
             this.NotifyBox.UseVisualStyleBackColor = true;
-            this.NotifyBox.CheckedChanged += new System.EventHandler(this.NotifyBox_CheckedChanged);
             // 
             // ChainDownloadButton
             // 
@@ -260,12 +262,34 @@
             this.NamePanel.Size = new System.Drawing.Size(167, 29);
             this.NamePanel.TabIndex = 21;
             // 
+            // StopAsyncButton
+            // 
+            this.StopAsyncButton.Location = new System.Drawing.Point(611, 63);
+            this.StopAsyncButton.Name = "StopAsyncButton";
+            this.StopAsyncButton.Size = new System.Drawing.Size(135, 32);
+            this.StopAsyncButton.TabIndex = 22;
+            this.StopAsyncButton.Text = "Stop Downloading";
+            this.StopAsyncButton.UseVisualStyleBackColor = true;
+            this.StopAsyncButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
+            // StopChainDownloadButton
+            // 
+            this.StopChainDownloadButton.Location = new System.Drawing.Point(611, 28);
+            this.StopChainDownloadButton.Name = "StopChainDownloadButton";
+            this.StopChainDownloadButton.Size = new System.Drawing.Size(135, 31);
+            this.StopChainDownloadButton.TabIndex = 23;
+            this.StopChainDownloadButton.Text = "Stop Chain Downloading";
+            this.StopChainDownloadButton.UseVisualStyleBackColor = true;
+            this.StopChainDownloadButton.Click += new System.EventHandler(this.StopChainDownloadButton_Click);
+            // 
             // MainFormController
             // 
             this.AcceptButton = this.FindButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1278, 578);
+            this.Controls.Add(this.StopChainDownloadButton);
+            this.Controls.Add(this.StopAsyncButton);
             this.Controls.Add(this.NamePanel);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.NotifyBox);
@@ -313,6 +337,8 @@
         private System.Windows.Forms.Panel RadioPanel;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel NamePanel;
+        private System.Windows.Forms.Button StopAsyncButton;
+        private System.Windows.Forms.Button StopChainDownloadButton;
     }
 }
 

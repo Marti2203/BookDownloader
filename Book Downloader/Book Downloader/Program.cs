@@ -15,17 +15,18 @@ namespace Book_Downloader
         static void Main()
         {
             IPrecedenceCreator picker = new DefaultPrecedencePicker();
+            ILogger logger = new DefaultLogger();
             if (File.Exists("Precedences.txt"))
             {
                 using(StreamReader reader=new StreamReader("Precedences.txt"))
                 {
-                    picker = new DefaultPrecedencePicker(reader.ReadToEnd().Split('\n')); 
+                    picker = new DefaultPrecedencePicker(reader.ReadToEnd()); 
                 }
             }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainFormController(picker,new DefaultLogger()));
+            Application.Run(new MainFormController(picker,logger));
         }
     }
 }

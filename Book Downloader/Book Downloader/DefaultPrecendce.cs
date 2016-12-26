@@ -9,9 +9,12 @@ namespace Book_Downloader
         {
             "lit:0","djvu:1", "mobi:2" ,"chm:3","epub:4","pdf:5" ,"zip:6"
         };
-        private readonly Dictionary<string, int> _values = new Dictionary<string, int>();
+
+        private readonly IDictionary<string, int> _values = new Dictionary<string, int>();
 
         public DefaultPrecedencePicker() : this(defaultValues) { }
+
+        public DefaultPrecedencePicker(string file) : this(file.Split('\n')) { }
 
         public DefaultPrecedencePicker(string[] lines)
         {

@@ -15,14 +15,18 @@ namespace Book_Downloader
                 .Select(element => element.Split('\'')[1])
                 .ToArray();
 
-
-        private static string[] CreateLanguageAndExtensions(string[] lines)
-        => lines
+        private static dynamic CreateLanguageAndExtensions(string[] lines)
+        {
+            string[] elements = lines
                 .Where(element => element.Contains("<td nowrap"))
-                .Where((element, index) => index % 2 == 1)
+                .Where((string element,int index) => index % 2 == 1)
                 .Select(element => element.Split('<', '>')[2])
                 .Select(element => element.Trim())
                 .ToArray();
+            string[] languages = elements.Where((string element, int index) => index % 2 == 0).ToArray();
+            string[] extensions = elements.Where((string element,int index)=>index%2==1).ToArray();
+            return new { Languages = languages, Extensions = extensions };
+        }
 
 
         private static string[] CreateBookNames(string[] lines)
@@ -60,10 +64,11 @@ namespace Book_Downloader
 
                             return result.Trim();
                         })
+            .Select(element => Encoding.UTF8.GetString(Encoding.Default.GetBytes(element)))
             .ToArray();
 
-        private bool CheckForNextPage(string line)
-            => line.StartsWith("< table width = \"100%\" >");
+        private bool CheckForNextPage(string[] lines)
+            => lines.Last().StartsWith("< table width = \"100%\" >");
 
         private static string DownloadKey(string hyperText)
             => CombinedLine(hyperText)

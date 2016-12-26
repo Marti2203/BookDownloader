@@ -17,13 +17,25 @@ namespace Book_Downloader
             Grid.Rows.Clear();
             Grid.Refresh();
 
-            new Thread(() => CreatePage(SearchBox.Text, PageNumberBox.Text)).Start();
+            new Thread(() =>
+            {
+                CreatePage(SearchBox.Text, PageNumberBox.Text);
+                Invoke(new MethodInvoker(() =>
+                {
+                    Grid.AutoResizeColumns();
+                    Grid.AutoResizeRows();
+                    UnlockButtons();
+                    UnlockInputFields();
+                }));
+
+            }).Start();
 
         }
 
         private void FilterButton_Click(object sender, EventArgs e)
         {
             if (HasFiltred) return;
+
             LockButtons();
             OutputTextBox.Clear();
             new Thread(() =>
@@ -31,6 +43,7 @@ namespace Book_Downloader
                 Filter();
 
                 Invoke(new MethodInvoker(() => UnlockButtons()));
+
             }).Start();
 
         }
@@ -41,15 +54,48 @@ namespace Book_Downloader
             {
                 LockButtons();
                 OutputTextBox.Clear();
+                StopAsyncButton.Enabled = true;
 
                 new Thread(() => Download((string)Grid["Address", e.RowIndex].Value)).Start();
             }
         }
 
         private void ChainDownloadButton_Click(object sender, EventArgs e)
-            => new Thread(() => { BeginChainDownloading(); }).Start();
+        {
+            LockButtons();
+            LockInputFields();
+            Grid.Enabled = false;
+            StopChainDownloadButton.Enabled = true;
 
-        private void NotifyBox_CheckedChanged(object sender, EventArgs e)
-            => NotifyOnDone = !NotifyOnDone;
+            ChainDownloadThread = new Thread(() =>
+            {
+                BeginChainDownloading();
+
+                Invoke(new MethodInvoker(() => 
+                {
+                    UnlockButtons();
+                    Grid.Enabled = true;
+                    UnlockInputFields();
+                    StopChainDownloadButton.Enabled = false;
+                }));
+                
+            });
+            ChainDownloadThread.Start();
+        }
+
+        private void StopButton_Click(object sender, EventArgs e)
+        {
+#warning Need to add Stop Async Session
+            if (CurrentSession != null)
+            {
+                CurrentSession.CancelAsync();
+            }
+        }
+
+        private void StopChainDownloadButton_Click(object sender, EventArgs e)
+        {
+            ChainDownloadThread.Abort();
+            OutputTextBox.Text = $"Chain downloading for {SearchText} Stopped at page {CurrentPage}";
+        }
     }
 }

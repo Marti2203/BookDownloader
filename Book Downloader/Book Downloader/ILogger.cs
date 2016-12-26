@@ -11,6 +11,6 @@
         Low,
         Medium,
         High,
-        SEVERE
+        HUGE
     }
 }

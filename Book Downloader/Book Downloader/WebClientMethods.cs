@@ -23,7 +23,7 @@ namespace Book_Downloader
             }));
 
             if (e.Cancelled)
-                ErrorTextBox.AppendText("Cancelled?!");
+                Invoke(new MethodInvoker(() => OutputTextBox.Text="Cancelled downloading"));
 
             if (e.Error != null)
             {
@@ -35,8 +35,6 @@ namespace Book_Downloader
                                 + e.Error?.InnerException?.Message
                                 + e.Error?.InnerException?.StackTrace);
                 }));
-                if (File.Exists(((DownloadSession)sender).FileName))
-                    File.Delete(((DownloadSession)sender).FileName);
             }
 
             else
@@ -50,7 +48,8 @@ namespace Book_Downloader
             }
 
             IsDownloading = false;
-            if (NotifyOnDone)
+
+            if (NotifyBox.Checked)
                 Invoke(new MethodInvoker(() => Notify()));
 
         }
