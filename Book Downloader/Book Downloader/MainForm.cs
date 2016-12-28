@@ -92,11 +92,7 @@ namespace Book_Downloader
 
             if (bookNames.Any(element => element == string.Empty)) _logger.Warning(Severity.Medium, "Empty String:", searchText);
 
-            dynamic languageAndExtension = CreateLanguageAndExtensions(lines);
-
-            string[] languages = languageAndExtension.Languages;
-
-            string[] extensions = languageAndExtension.Extensions;
+            CreateLanguageAndExtensions(lines, out string[] languages,out string[] extensions);
 
             string[] downloadAddresses = CreateDownloadAddresses(lines);
 
@@ -113,7 +109,7 @@ namespace Book_Downloader
         private string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
-        private dynamic CreateDownloadInfomration(string page)
+        private void CreateDownloadInfomration(string page,out string downloadAddress,out string fileName)
         {
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             using (WebClient client = new WebClient())
@@ -123,7 +119,9 @@ namespace Book_Downloader
                 TryGetWebPage:
                 if (counter == 10)
                 {
-                    return null;
+                    downloadAddress = null;
+                    fileName = null;
+                    return;
                 }
                 try
                 {
@@ -143,11 +141,9 @@ namespace Book_Downloader
                     goto TryGetWebPage;
                 }
 
-                return new
-                {
-                    DownloadAddress = CreateDownloadAddress(page, DownloadKey(hyperText)),
-                    FileName = GetFileName(hyperText)
-                };
+                downloadAddress = CreateDownloadAddress(page, DownloadKey(hyperText));
+                fileName = GetFileName(hyperText);
+                
             }
         }
 
@@ -167,26 +163,26 @@ namespace Book_Downloader
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
                     if (row.Cells[0].Value == null) continue;
-                    dynamic downloadInfo = CreateDownloadInfomration(row.Cells[1].Value as string);
-                    if (downloadInfo == null)
+                    CreateDownloadInfomration(row.Cells[1].Value as string,out string downloadAddress,out string fileName);
+                    if (downloadAddress == null)
                     {
                         Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
                         return;
                     }
-                    if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + downloadInfo.FileName))
+                    if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + fileName))
                     {
-                        OutputTextBox.Text = $"File {downloadInfo.FileName} Exists";
+                        OutputTextBox.Text = $"File {fileName} Exists";
                         continue;
                     }
                     using (WebClient client = new WebClient())
                     {
                         Invoke(new MethodInvoker(() =>
                         {
-                            OutputTextBox.AppendText($"Starting Download of {downloadInfo.FileName}\n\n");
+                            OutputTextBox.AppendText($"Starting Download of {fileName}\n\n");
                         }));
                         try
                         {
-                            client.DownloadFile(downloadInfo.DownloadAddress, downloadInfo.FileName);
+                            client.DownloadFile(downloadAddress, fileName);
                         }
                         catch (WebException we)
                         {
@@ -194,20 +190,20 @@ namespace Book_Downloader
                             {
                                 ErrorTextBox.Clear();
                                 _logger.Error(Severity.HUGE, "Failed Download!!"
-                                    , downloadInfo.DownloadAddress, downloadInfo.FileName);
-                                ErrorTextBox.AppendText($"For File {downloadInfo.FileName}\n");
+                                    , downloadAddress, fileName);
+                                ErrorTextBox.AppendText($"For File {fileName}\n");
                                 ErrorTextBox.AppendText($"{we.Message}\n");
                                 ErrorTextBox.AppendText($"{we.StackTrace}\n");
                                 ErrorTextBox.AppendText($"{we?.InnerException?.Message}\n");
                                 ErrorTextBox.AppendText($"{we.InnerException?.StackTrace}\n");
-                                OutputTextBox.AppendText($"Download For {downloadInfo.FileName} failed.\n\n");
+                                OutputTextBox.AppendText($"Download For {fileName} failed.\n\n");
                             }));
                             goto EndOfFor;
                         }
                     }
                     Invoke(new MethodInvoker(() =>
                     {
-                        OutputTextBox.AppendText($"Finished Downloading {downloadInfo.FileName}\n");
+                        OutputTextBox.AppendText($"Finished Downloading {fileName}\n");
                     }));
                     EndOfFor:
 
@@ -228,8 +224,8 @@ namespace Book_Downloader
         {
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             if (!Uri.TryCreate(page, UriKind.Absolute, out Uri result)) throw new ArgumentException("Page link is invalid");
-            dynamic downloadInfo = CreateDownloadInfomration(page);
-            Download(downloadInfo.DownloadAddress, downloadInfo.FileName);
+            CreateDownloadInfomration(page,out string downloadAddress,out string fileName);
+            Download(downloadAddress, fileName);
         }
 
         private void Download(string fileLink, string fileName)

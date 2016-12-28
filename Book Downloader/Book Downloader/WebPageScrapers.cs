@@ -15,7 +15,7 @@ namespace Book_Downloader
                 .Select(element => element.Split('\'')[1])
                 .ToArray();
 
-        private static dynamic CreateLanguageAndExtensions(string[] lines)
+        private static void CreateLanguageAndExtensions(string[] lines,out string[] languages,out string[] extensions)
         {
             string[] elements = lines
                 .Where(element => element.Contains("<td nowrap"))
@@ -23,9 +23,8 @@ namespace Book_Downloader
                 .Select(element => element.Split('<', '>')[2])
                 .Select(element => element.Trim())
                 .ToArray();
-            string[] languages = elements.Where((string element, int index) => index % 2 == 0).ToArray();
-            string[] extensions = elements.Where((string element,int index)=>index%2==1).ToArray();
-            return new { Languages = languages, Extensions = extensions };
+            languages = elements.Where((string element, int index) => index % 2 == 0).ToArray();
+            extensions = elements.Where((string element,int index)=>index%2==1).ToArray();
         }
 
 
