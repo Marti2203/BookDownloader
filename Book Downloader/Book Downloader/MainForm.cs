@@ -103,10 +103,10 @@ namespace Book_Downloader
             SetView(bookNames, filterBookNames, downloadAddresses, languages, extensions);
         }
 
-        private string CreateFilterName(string bookName)
+        private static string CreateFilterName(string bookName)
             => bookName.ToLower();
 
-        private string CreateDownloadAddress(string address, string key)
+        private static string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
         private void CreateDownloadInfomration(string page,out string downloadAddress,out string fileName)
@@ -212,8 +212,11 @@ namespace Book_Downloader
                 currentHasNextPage = HasNextPage;
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
             } while (currentHasNextPage);
+            Invoke(new MethodInvoker(() =>
+            {
+                OutputTextBox.AppendText($"Finished Chain Downloading \n");
+            }));
         }
-
 
         public void Download(string page)
         {
@@ -241,8 +244,6 @@ namespace Book_Downloader
                 client.DownloadProgressChanged += DownloadProgressChanged;
             }
         }
-
-
 
         public void Filter()
         {
@@ -284,7 +285,6 @@ namespace Book_Downloader
 
             HasFiltred = true;
         }
-
 
         private string SelectedBookCount
             => RadioPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text.Split(' ')[0];
