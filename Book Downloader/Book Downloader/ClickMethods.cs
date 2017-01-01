@@ -55,7 +55,7 @@ namespace Book_Downloader
                 LockButtons();
                 OutputTextBox.Clear();
 
-                new Thread(() => Download((string)Grid["Address", e.RowIndex].Value)).Start();
+                new Thread(() => StartDownload((string)Grid["Address", e.RowIndex].Value, (string)Grid["Extension", e.RowIndex].Value)).Start();
             }
         }
 

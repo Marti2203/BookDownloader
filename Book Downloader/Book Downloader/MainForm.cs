@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Collections;
+using static Book_Downloader.WebPageScraper;
 
 namespace Book_Downloader
 {
@@ -47,7 +48,7 @@ namespace Book_Downloader
 
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
-            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible = false });
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible = false});
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", ReadOnly = true, Visible = false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Language", ReadOnly = true });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
@@ -104,12 +105,16 @@ namespace Book_Downloader
         }
 
         private static string CreateFilterName(string bookName)
-            => bookName.ToLower();
-
+        {
+            string filteredBookName = bookName.ToLower();
+            new[] { ',', '\"', ':', '_', '-' }.ToList().ForEach(element => filteredBookName=filteredBookName.Replace(element, ' '));
+            
+            return filteredBookName;
+        }
         private static string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
-        private void CreateDownloadInfomration(string page,out string downloadAddress,out string fileName)
+        private void CreateDownloadInformation(string page,out string downloadAddress,out string fileName,out bool needExtension)
         {
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             using (WebClient client = new WebClient())
@@ -121,6 +126,7 @@ namespace Book_Downloader
                 {
                     downloadAddress = null;
                     fileName = null;
+                    needExtension = false;
                     return;
                 }
                 try
@@ -134,7 +140,6 @@ namespace Book_Downloader
                     {
                         ErrorTextBox.AppendText("Timed out, will retry in 3 secs\n");
                         ErrorTextBox.AppendText($"{ex.StackTrace}\n");
-                        ErrorTextBox.AppendText(ex?.InnerException?.StackTrace);
                         Thread.Sleep(3000);
                     }));
                     counter++;
@@ -142,7 +147,7 @@ namespace Book_Downloader
                 }
 
                 downloadAddress = CreateDownloadAddress(page, DownloadKey(hyperText));
-                fileName = GetFileName(hyperText);
+                fileName = GetFileName(hyperText,out needExtension);
                 
             }
         }
@@ -163,7 +168,7 @@ namespace Book_Downloader
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
                     if (row.Cells[0].Value == null) continue;
-                    CreateDownloadInfomration(row.Cells["Address"].Value as string,out string downloadAddress,out string fileName);
+                    CreateDownloadInformation(row.Cells["Address"].Value as string,out string downloadAddress,out string fileName,out bool needExtension);
                     if (downloadAddress == null)
                     {
                         Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
@@ -171,7 +176,7 @@ namespace Book_Downloader
                     }
                     if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + fileName))
                     {
-                        OutputTextBox.Text = $"File {fileName} Exists";
+                        Invoke(new MethodInvoker(() => OutputTextBox.AppendText($"File {fileName} Exists\n\n")));
                         continue;
                     }
                     using (WebClient client = new WebClient())
@@ -182,7 +187,12 @@ namespace Book_Downloader
                         }));
                         try
                         {
-                            File.WriteAllBytes(string.Format(@"\\?\{0}{1}", Environment.GetEnvironmentVariable("BookDownloader"), fileName), client.DownloadData(downloadAddress));
+                            File.WriteAllBytes(
+                                string.Format(@"\\?\{0}{1}{2}", 
+                                    Environment.GetEnvironmentVariable("BookDownloader"), 
+                                    fileName, 
+                                    needExtension ? row.Cells["Extension"].Value : string.Empty)
+                                , client.DownloadData(downloadAddress));
                         }
                         catch (WebException we)
                         {
@@ -218,15 +228,15 @@ namespace Book_Downloader
             }));
         }
 
-        public void Download(string page)
+        public void Download(string page,string extension="")
         {
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             if (!Uri.TryCreate(page, UriKind.Absolute, out Uri result)) throw new ArgumentException("Page link is invalid");
-            CreateDownloadInfomration(page,out string downloadAddress,out string fileName);
-            Download(downloadAddress, fileName);
+            CreateDownloadInformation(page,out string downloadAddress,out string fileName,out bool needExtension);
+            StartDownload(downloadAddress, fileName+extension);
         }
 
-        private void Download(string fileLink, string fileName)
+        private void StartDownload(string fileLink, string fileName)
         {
             if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + fileName))
             {

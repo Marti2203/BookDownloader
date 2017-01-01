@@ -26,7 +26,7 @@ namespace Book_Downloader
 
         private void WriteMessage(string type,Severity severity,string message,params object[] elements)
         {
-            using (StreamWriter writer = new StreamWriter($"{type}s.txt", true))
+            using (StreamWriter writer = new StreamWriter($"{type}S.txt", true))
             {
                 writer.Write($"{severity} {type} {message} :");
                 foreach (object element in elements) { writer.Write($"{element}\t"); }
