@@ -16,7 +16,7 @@ namespace Book_Downloader
         {
             FileName = fileName;
             Address = address;
-            DownloadFileAsync(address, fileName);
+            DownloadDataAsync(address, fileName);
         }
     }
 }

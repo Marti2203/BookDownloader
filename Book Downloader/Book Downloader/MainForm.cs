@@ -163,7 +163,7 @@ namespace Book_Downloader
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
                     if (row.Cells[0].Value == null) continue;
-                    CreateDownloadInfomration(row.Cells[1].Value as string,out string downloadAddress,out string fileName);
+                    CreateDownloadInfomration(row.Cells["Address"].Value as string,out string downloadAddress,out string fileName);
                     if (downloadAddress == null)
                     {
                         Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
@@ -182,7 +182,7 @@ namespace Book_Downloader
                         }));
                         try
                         {
-                            client.DownloadFile(downloadAddress, fileName);
+                            File.WriteAllBytes(string.Format(@"\\?\{0}{1}", Environment.GetEnvironmentVariable("BookDownloader"), fileName), client.DownloadData(downloadAddress));
                         }
                         catch (WebException we)
                         {
@@ -214,11 +214,6 @@ namespace Book_Downloader
             } while (currentHasNextPage);
         }
 
-        private void LongPathDownload(string fileName)
-        {
-#warning Long path download is not created
-            throw new NotImplementedException();
-        }
 
         public void Download(string page)
         {
@@ -241,11 +236,13 @@ namespace Book_Downloader
                 IsDownloading = true;
                 CurrentSession = client;
                 StopAsyncButton.Enabled = true;
-                 
+
+                client.DownloadDataCompleted += DownloadDataCompleted;
                 client.DownloadProgressChanged += DownloadProgressChanged;
-                client.DownloadFileCompleted += DownloadCompleted;
             }
         }
+
+
 
         public void Filter()
         {

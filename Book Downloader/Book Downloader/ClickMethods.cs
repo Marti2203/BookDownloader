@@ -54,7 +54,6 @@ namespace Book_Downloader
             {
                 LockButtons();
                 OutputTextBox.Clear();
-                StopAsyncButton.Enabled = true;
 
                 new Thread(() => Download((string)Grid["Address", e.RowIndex].Value)).Start();
             }
@@ -85,7 +84,6 @@ namespace Book_Downloader
 
         private void StopButton_Click(object sender, EventArgs e)
         {
-#warning Need to add Stop Async Session
             if (CurrentSession != null)
             {
                 CurrentSession.CancelAsync();
