@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading;
 using System.Collections;
 using static Book_Downloader.WebPageScraper;
+using System.Drawing;
 
 namespace Book_Downloader
 {
@@ -54,11 +55,24 @@ namespace Book_Downloader
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
             #endregion
 
+
             FilterButton.Enabled = false;
             StopAsyncButton.Enabled = false;
             ChainDownloadButton.Enabled = false;
             StopChainDownloadButton.Enabled = false;
         }
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            new Thread(() => {
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadDataAsync(new Uri($"https://unsplash.it/{Width}/{Height}/?random"));
+                    client.DownloadDataCompleted += Client_DownloadDataCompleted;
+                } }).Start();
+            base.OnResizeEnd(e);
+        }
+
+
 
         private void SetView
             (string[] bookNames, string[] filterBookNames, string[] downloadAddresses, string[] languages, string[] extensions)
@@ -159,6 +173,7 @@ namespace Book_Downloader
             bool currentHasNextPage;
             do
             {
+                IsDownloading = true;
                 if (!HasFiltred)
                     Filter();
                 Invoke(new MethodInvoker(() =>
@@ -183,7 +198,7 @@ namespace Book_Downloader
                     {
                         Invoke(new MethodInvoker(() =>
                         {
-                            OutputTextBox.AppendText($"Starting Download of {fileName}\n\n");
+                            OutputTextBox.AppendText($"Started Download of {fileName}\n\n");
                         }));
                         try
                         {
@@ -213,7 +228,7 @@ namespace Book_Downloader
                     }
                     Invoke(new MethodInvoker(() =>
                     {
-                        OutputTextBox.AppendText($"Finished Downloading {fileName}\n");
+                        OutputTextBox.AppendText($"Successful Download of {fileName}\n");
                     }));
                     EndOfFor:
 
@@ -222,6 +237,7 @@ namespace Book_Downloader
                 currentHasNextPage = HasNextPage;
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
             } while (currentHasNextPage);
+            IsDownloading = false;
             Invoke(new MethodInvoker(() =>
             {
                 OutputTextBox.AppendText($"Finished Chain Downloading \n");
@@ -334,8 +350,8 @@ namespace Book_Downloader
             PageNumberBox.Enabled = true;
         }
 
-        #endregion
 
+        #endregion
 
     }
 }

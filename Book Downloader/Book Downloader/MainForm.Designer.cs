@@ -236,6 +236,7 @@
             // 
             // RadioPanel
             // 
+            this.RadioPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.RadioPanel.Controls.Add(this.SmallAmountButton);
             this.RadioPanel.Controls.Add(this.MediumAmountButton);
             this.RadioPanel.Controls.Add(this.LargeAmountButton);
@@ -303,7 +304,7 @@
             this.Controls.Add(this.FindButton);
             this.Controls.Add(this.Grid);
             this.Name = "MainFormController";
-            this.Text = "MainForm";
+            this.Text = "Book Downloader";
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).EndInit();
             this.RadioPanel.ResumeLayout(false);

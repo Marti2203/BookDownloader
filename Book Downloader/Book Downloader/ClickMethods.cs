@@ -63,7 +63,6 @@ namespace Book_Downloader
         {
             LockButtons();
             LockInputFields();
-            Grid.Enabled = false;
             StopChainDownloadButton.Enabled = true;
 
             ChainDownloadThread = new Thread(() =>
@@ -94,6 +93,7 @@ namespace Book_Downloader
         {
             ChainDownloadThread.Abort();
             OutputTextBox.Text = $"Chain downloading for {SearchText} Stopped at page {CurrentPage}";
+            Invoke(new MethodInvoker(() => { UnlockButtons(); UnlockInputFields(); }));
         }
     }
 }

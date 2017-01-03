@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Net;
 using System.IO;
+using System.Drawing;
 
 namespace Book_Downloader
 {
@@ -84,12 +85,26 @@ namespace Book_Downloader
             }
         }
 
+        private void Client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                return;
+            }
+            if (e.Error != null)
+            {
+                return;
+            }
+            BackgroundImage = new Bitmap(new MemoryStream(e.Result));
+            Invoke(new MethodInvoker(() => Refresh()));
+        }
+
         public void Notify()
         {
             WindowState = FormWindowState.Minimized;
             Show();
             WindowState = FormWindowState.Normal;
         }
-
+        
     }
 }

@@ -71,9 +71,7 @@
     <Compile Include="WebClientMethods.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="WebPageScrapers.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="WebPageScrapers.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <Generator>PublicResXFileCodeGenerator</Generator>
