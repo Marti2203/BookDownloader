@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.NameLabel = new System.Windows.Forms.Label();
-            this.SearchBox = new System.Windows.Forms.TextBox();
             this.Grid = new System.Windows.Forms.DataGridView();
             this.FindButton = new System.Windows.Forms.Button();
             this.PageLabel = new System.Windows.Forms.Label();
@@ -45,40 +43,17 @@
             this.MediumAmountButton = new System.Windows.Forms.RadioButton();
             this.SmallAmountButton = new System.Windows.Forms.RadioButton();
             this.RadioPanel = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.NamePanel = new System.Windows.Forms.Panel();
             this.StopAsyncButton = new System.Windows.Forms.Button();
             this.StopChainDownloadButton = new System.Windows.Forms.Button();
+            this.SearchBox = new System.Windows.Forms.TextBox();
+            this.NameLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).BeginInit();
             this.RadioPanel.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.NamePanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // NameLabel
-            // 
-            this.NameLabel.AutoSize = true;
-            this.NameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.3F);
-            this.NameLabel.Location = new System.Drawing.Point(4, 8);
-            this.NameLabel.Name = "NameLabel";
-            this.NameLabel.Size = new System.Drawing.Size(41, 15);
-            this.NameLabel.TabIndex = 1;
-            this.NameLabel.Text = "Name";
-            this.NameLabel.UseMnemonic = false;
-            // 
-            // SearchBox
-            // 
-            this.SearchBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.SearchBox.Location = new System.Drawing.Point(51, 6);
-            this.SearchBox.Name = "SearchBox";
-            this.SearchBox.Size = new System.Drawing.Size(113, 20);
-            this.SearchBox.TabIndex = 2;
             // 
             // Grid
             // 
-            this.Grid.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.Grid.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.Sunken;
             this.Grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.Grid.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Grid.Location = new System.Drawing.Point(12, 101);
@@ -104,7 +79,7 @@
             // 
             this.PageLabel.AutoSize = true;
             this.PageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.3F);
-            this.PageLabel.Location = new System.Drawing.Point(4, 6);
+            this.PageLabel.Location = new System.Drawing.Point(24, 73);
             this.PageLabel.Name = "PageLabel";
             this.PageLabel.Size = new System.Drawing.Size(36, 15);
             this.PageLabel.TabIndex = 6;
@@ -112,6 +87,7 @@
             // 
             // OutputTextBox
             // 
+            this.OutputTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.OutputTextBox.Location = new System.Drawing.Point(803, 103);
             this.OutputTextBox.Multiline = true;
             this.OutputTextBox.Name = "OutputTextBox";
@@ -154,7 +130,7 @@
             // 
             // PageNumberBox
             // 
-            this.PageNumberBox.Location = new System.Drawing.Point(51, 8);
+            this.PageNumberBox.Location = new System.Drawing.Point(66, 71);
             this.PageNumberBox.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -176,6 +152,7 @@
             // 
             // ErrorTextBox
             // 
+            this.ErrorTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ErrorTextBox.Location = new System.Drawing.Point(803, 321);
             this.ErrorTextBox.Multiline = true;
             this.ErrorTextBox.Name = "ErrorTextBox";
@@ -237,31 +214,14 @@
             // RadioPanel
             // 
             this.RadioPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.RadioPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.RadioPanel.Controls.Add(this.SmallAmountButton);
             this.RadioPanel.Controls.Add(this.MediumAmountButton);
             this.RadioPanel.Controls.Add(this.LargeAmountButton);
             this.RadioPanel.Location = new System.Drawing.Point(185, 28);
             this.RadioPanel.Name = "RadioPanel";
-            this.RadioPanel.Size = new System.Drawing.Size(240, 29);
+            this.RadioPanel.Size = new System.Drawing.Size(240, 31);
             this.RadioPanel.TabIndex = 19;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.PageLabel);
-            this.panel2.Controls.Add(this.PageNumberBox);
-            this.panel2.Location = new System.Drawing.Point(12, 63);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(167, 32);
-            this.panel2.TabIndex = 20;
-            // 
-            // NamePanel
-            // 
-            this.NamePanel.Controls.Add(this.NameLabel);
-            this.NamePanel.Controls.Add(this.SearchBox);
-            this.NamePanel.Location = new System.Drawing.Point(12, 28);
-            this.NamePanel.Name = "NamePanel";
-            this.NamePanel.Size = new System.Drawing.Size(167, 29);
-            this.NamePanel.TabIndex = 21;
             // 
             // StopAsyncButton
             // 
@@ -283,16 +243,37 @@
             this.StopChainDownloadButton.UseVisualStyleBackColor = true;
             this.StopChainDownloadButton.Click += new System.EventHandler(this.StopChainDownloadButton_Click);
             // 
+            // SearchBox
+            // 
+            this.SearchBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.SearchBox.Location = new System.Drawing.Point(66, 39);
+            this.SearchBox.Name = "SearchBox";
+            this.SearchBox.Size = new System.Drawing.Size(113, 20);
+            this.SearchBox.TabIndex = 2;
+            // 
+            // NameLabel
+            // 
+            this.NameLabel.AutoSize = true;
+            this.NameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.3F);
+            this.NameLabel.Location = new System.Drawing.Point(19, 41);
+            this.NameLabel.Name = "NameLabel";
+            this.NameLabel.Size = new System.Drawing.Size(41, 15);
+            this.NameLabel.TabIndex = 1;
+            this.NameLabel.Text = "Name";
+            this.NameLabel.UseMnemonic = false;
+            // 
             // MainFormController
             // 
             this.AcceptButton = this.FindButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1278, 578);
+            this.Controls.Add(this.PageNumberBox);
+            this.Controls.Add(this.PageLabel);
+            this.Controls.Add(this.NameLabel);
             this.Controls.Add(this.StopChainDownloadButton);
+            this.Controls.Add(this.SearchBox);
             this.Controls.Add(this.StopAsyncButton);
-            this.Controls.Add(this.NamePanel);
-            this.Controls.Add(this.panel2);
             this.Controls.Add(this.NotifyBox);
             this.Controls.Add(this.RadioPanel);
             this.Controls.Add(this.ErrorLabel);
@@ -309,18 +290,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).EndInit();
             this.RadioPanel.ResumeLayout(false);
             this.RadioPanel.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            this.NamePanel.ResumeLayout(false);
-            this.NamePanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Label NameLabel;
-        private System.Windows.Forms.TextBox SearchBox;
         private System.Windows.Forms.DataGridView Grid;
         private System.Windows.Forms.Button FindButton;
         private System.Windows.Forms.Label PageLabel;
@@ -336,10 +311,10 @@
         private System.Windows.Forms.RadioButton MediumAmountButton;
         private System.Windows.Forms.RadioButton SmallAmountButton;
         private System.Windows.Forms.Panel RadioPanel;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Panel NamePanel;
         private System.Windows.Forms.Button StopAsyncButton;
         private System.Windows.Forms.Button StopChainDownloadButton;
+        private System.Windows.Forms.TextBox SearchBox;
+        private System.Windows.Forms.Label NameLabel;
     }
 }
 

@@ -58,6 +58,7 @@ namespace Book_Downloader
 
         private void DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
         {
+            IsDownloading = false;
             Invoke(new MethodInvoker(() =>
             {
                 UnlockButtons();
@@ -72,10 +73,10 @@ namespace Book_Downloader
             else if (e.Error != null)
             {
                 Invoke(new MethodInvoker(() =>
-                    ErrorTextBox.Text = $@"{e.Error.Message} 
-                    \n { e.Error.StackTrace}
-                    \n { e.Error?.InnerException?.Message }
-                    \n { e.Error?.InnerException?.StackTrace}"
+                    ErrorTextBox.Text = $@"{e.Error.Message}
+                    { e.Error.StackTrace}
+                    { e.Error?.InnerException?.Message }
+                    { e.Error?.InnerException?.StackTrace}"
                 ));
             }
             else

@@ -14,33 +14,40 @@ namespace Book_Downloader
         /// </summary>
         static void Main()
         {
-            if (Environment.GetEnvironmentVariable("BookDownloader",EnvironmentVariableTarget.User) == null)
-            {
-                DriveInfo biggest=null;
-                foreach(DriveInfo drive in DriveInfo.GetDrives())
-                {
-                    if (biggest == null)
-                    {
-                        biggest = drive;
-                    }
-                    if (drive.AvailableFreeSpace > biggest.AvailableFreeSpace) biggest = drive;
-                }
-                Environment.SetEnvironmentVariable("BookDownloader",string.Format("{0}BookDownloader",biggest.Name));
-                Directory.CreateDirectory(string.Format("{0}BookDownloader", biggest.Name));
-            }
+            CreateDownloadFolder();
+
             IPrecedenceCreator picker = new DefaultPrecedencePicker();
             ILogger logger = new DefaultLogger();
             if (File.Exists("Precedences.txt"))
             {
-                using(StreamReader reader=new StreamReader("Precedences.txt"))
+                using (StreamReader reader = new StreamReader("Precedences.txt"))
                 {
-                    picker = new DefaultPrecedencePicker(reader.ReadToEnd()); 
+                    picker = new DefaultPrecedencePicker(reader.ReadToEnd());
                 }
             }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainFormController(picker,logger));
+            Application.Run(new MainFormController(picker, logger));
+        }
+
+        private static void CreateDownloadFolder()
+        {
+            DriveInfo biggest = null;
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                if (biggest == null)
+                {
+                    biggest = drive;
+                }
+                try
+                {
+                    if (drive.AvailableFreeSpace > biggest.AvailableFreeSpace) biggest = drive;
+                }
+                catch (IOException) { }
+            }
+            Environment.SetEnvironmentVariable("BookDownloader", string.Format("{0}BookDownloader", biggest.Name), EnvironmentVariableTarget.User);
+            Directory.CreateDirectory(string.Format("{0}BookDownloader", biggest.Name));
         }
     }
 }

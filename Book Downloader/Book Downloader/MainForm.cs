@@ -55,24 +55,28 @@ namespace Book_Downloader
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
             #endregion
 
+            SetBackground();
 
             FilterButton.Enabled = false;
             StopAsyncButton.Enabled = false;
             ChainDownloadButton.Enabled = false;
             StopChainDownloadButton.Enabled = false;
         }
+
         protected override void OnResizeEnd(EventArgs e)
         {
-            new Thread(() => {
-                using (WebClient client = new WebClient())
-                {
-                    client.DownloadDataAsync(new Uri($"https://unsplash.it/{Width}/{Height}/?random"));
-                    client.DownloadDataCompleted += Client_DownloadDataCompleted;
-                } }).Start();
+            new Thread(() => SetBackground()).Start();
             base.OnResizeEnd(e);
         }
 
-
+        private void SetBackground()
+        {
+            using (WebClient client = new WebClient())
+            {
+                client.DownloadDataAsync(new Uri($"https://unsplash.it/{Width}/{Height}/?random"));
+                client.DownloadDataCompleted += Client_DownloadDataCompleted;
+            }
+        }
 
         private void SetView
             (string[] bookNames, string[] filterBookNames, string[] downloadAddresses, string[] languages, string[] extensions)
@@ -264,7 +268,7 @@ namespace Book_Downloader
             {
                 IsDownloading = true;
                 CurrentSession = client;
-                StopAsyncButton.Enabled = true;
+                Invoke(new MethodInvoker(()=>StopAsyncButton.Enabled = true));
 
                 client.DownloadDataCompleted += DownloadDataCompleted;
                 client.DownloadProgressChanged += DownloadProgressChanged;
