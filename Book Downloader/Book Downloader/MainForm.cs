@@ -16,15 +16,20 @@ namespace Book_Downloader
 {
     public partial class MainFormController : Form
     {
+
         private const string _address = "http://gen.lib.rus.ec/search.php?&req={0}&phrase=1&view=simple&column=def&sort=def&sortmode=ASC&page={1}&res={2}";
 
         private readonly ILogger _logger;
 
         private readonly IPrecedenceCreator _precedence;
-        
+
         private DownloadSession CurrentSession { get; set; }
 
         private Thread ChainDownloadThread { get; set; }
+
+        private ButtonGroup<string> Group { get; set; }
+
+        private string DownloadLocation { get; set; } = Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.Process);
 
         private string CurrentPage { get; set; }
 
@@ -38,35 +43,66 @@ namespace Book_Downloader
 
         private bool HasNextPage { get; set; } = false;
 
+        private bool NotifyOnDone { get; set; } = false;
+
+        private bool ChangeOnResize { get; set; }
+
         #endregion
 
-        public MainFormController(IPrecedenceCreator precedence, ILogger logger)
+        public MainFormController(IPrecedenceCreator precedence, ILogger logger, BackgroundChange change)
         {
             InitializeComponent();
 
             _logger = logger;
             _precedence = precedence;
 
+            if (change > BackgroundChange.Never) SetBackground();
+            if (change == BackgroundChange.Always) ChangeOnResize = true;
+
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
-            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible = false});
+            Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Filter Name", ReadOnly = true, Visible = false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Address", ReadOnly = true, Visible = false });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Language", ReadOnly = true });
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Extension", ReadOnly = true });
             #endregion
 
-            SetBackground();
-
+            #region Button Disable
             FilterButton.Enabled = false;
             StopAsyncButton.Enabled = false;
             ChainDownloadButton.Enabled = false;
             StopChainDownloadButton.Enabled = false;
+            #endregion
+
+            Grid.Left = (this.ClientSize.Width - Grid.Width) / 2;
+            Grid.Top = (this.ClientSize.Height - Grid.Height) / 2;
+
+            #region Radio Button Group
+            Group = new ButtonGroup<string>(new[]{
+                new Tuple<RadioButton,string>(LargeAmountButton,"100"),
+                 new Tuple<RadioButton, string>(MediumAmountButton, "50"),
+                 new Tuple<RadioButton, string>(SmallAmountButton, "25") });
+            #endregion
+
+            #region Draw Styles
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            #endregion 
+
         }
 
-        protected override void OnResizeEnd(EventArgs e)
+        protected override void OnSizeChanged(EventArgs e)
         {
-            new Thread(() => SetBackground()).Start();
-            base.OnResizeEnd(e);
+            if (ChangeOnResize)
+                new Thread(() => SetBackground()).Start();
+            Grid.Left = (this.ClientSize.Width - Grid.Width) / 2;
+            Grid.Top = (this.ClientSize.Height - Grid.Height) / 2;
+
+            //Grid.Width = this.ClientSize.Width - ErrorPanel.Width-StatusPanel.Width;
+            //Grid.Height = this.ClientSize.Height - MainPanel.Height - RadioPanel.Height-ButtonPanel.Height;
+
+            base.OnSizeChanged(e);
         }
 
         private void SetBackground()
@@ -111,7 +147,7 @@ namespace Book_Downloader
 
             if (bookNames.Any(element => element == string.Empty)) _logger.Warning(Severity.Medium, "Empty String:", searchText);
 
-            CreateLanguageAndExtensions(lines, out string[] languages,out string[] extensions);
+            CreateLanguageAndExtensions(lines, out string[] languages, out string[] extensions);
 
             string[] downloadAddresses = CreateDownloadAddresses(lines);
 
@@ -125,14 +161,14 @@ namespace Book_Downloader
         private static string CreateFilterName(string bookName)
         {
             string filteredBookName = bookName.ToLower();
-            new[] { ',', '\"', ':', '_', '-' }.ToList().ForEach(element => filteredBookName=filteredBookName.Replace(element, ' '));
-            
+            new[] { ',', '\"', ':', '_', '-' }.ToList().ForEach(element => filteredBookName = filteredBookName.Replace(element, ' '));
+
             return filteredBookName;
         }
         private static string CreateDownloadAddress(string address, string key)
             => string.Format("{0}&key={1}", address.Replace("ads.php", "get.php"), key.Remove(key.Length - 1));
 
-        private void CreateDownloadInformation(string page,out string downloadAddress,out string fileName,out bool needExtension)
+        private void CreateDownloadInformation(string page, out string downloadAddress, out string fileName, out bool needExtension)
         {
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             using (WebClient client = new WebClient())
@@ -165,15 +201,15 @@ namespace Book_Downloader
                 }
 
                 downloadAddress = CreateDownloadAddress(page, DownloadKey(hyperText));
-                fileName = GetFileName(hyperText,out needExtension);
-                
+                fileName = GetFileName(hyperText, out needExtension);
+
             }
         }
 
         public void BeginChainDownloading()
         {
-           CurrentPage = PageNumberBox.Text;
-           SearchText = SearchBox.Text;
+            CurrentPage = PageNumberBox.Text;
+            SearchText = SearchBox.Text;
             bool currentHasNextPage;
             do
             {
@@ -187,7 +223,7 @@ namespace Book_Downloader
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
                     if (row.Cells[0].Value == null) continue;
-                    CreateDownloadInformation(row.Cells["Address"].Value as string,out string downloadAddress,out string fileName,out bool needExtension);
+                    CreateDownloadInformation(row.Cells["Address"].Value as string, out string downloadAddress, out string fileName, out bool needExtension);
                     if (downloadAddress == null)
                     {
                         Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
@@ -207,9 +243,9 @@ namespace Book_Downloader
                         try
                         {
                             File.WriteAllBytes(
-                                string.Format(@"\\?\{0}{1}{2}", 
-                                    Environment.GetEnvironmentVariable("BookDownloader"), 
-                                    fileName, 
+                                string.Format(@"\\?\{0}{1}{2}",
+                                    Environment.GetEnvironmentVariable("BookDownloader"),
+                                    fileName,
                                     needExtension ? row.Cells["Extension"].Value : string.Empty)
                                 , client.DownloadData(downloadAddress));
                         }
@@ -248,12 +284,12 @@ namespace Book_Downloader
             }));
         }
 
-        public void Download(string page,string extension="")
+        public void Download(string page, string extension = "")
         {
             if (page == null) throw new ArgumentNullException("Page Link cannot be null");
             if (!Uri.TryCreate(page, UriKind.Absolute, out Uri result)) throw new ArgumentException("Page link is invalid");
-            CreateDownloadInformation(page,out string downloadAddress,out string fileName,out bool needExtension);
-            StartDownload(downloadAddress, fileName+extension);
+            CreateDownloadInformation(page, out string downloadAddress, out string fileName, out bool needExtension);
+            StartDownload(downloadAddress, fileName + (needExtension ? extension : ""));
         }
 
         private void StartDownload(string fileLink, string fileName)
@@ -268,7 +304,7 @@ namespace Book_Downloader
             {
                 IsDownloading = true;
                 CurrentSession = client;
-                Invoke(new MethodInvoker(()=>StopAsyncButton.Enabled = true));
+                Invoke(new MethodInvoker(() => StopAsyncButton.Enabled = true));
 
                 client.DownloadDataCompleted += DownloadDataCompleted;
                 client.DownloadProgressChanged += DownloadProgressChanged;
@@ -316,8 +352,7 @@ namespace Book_Downloader
             HasFiltred = true;
         }
 
-        private string SelectedBookCount
-            => RadioPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked).Text.Split(' ')[0];
+        private string SelectedBookCount => Group.Value;
 
         private string GetFilterNameFromGrid(int row) => Grid["Filter Name", row].Value as string;
         private string GetLanguageFromDataGrid(int row) => Grid["Language", row].Value as string;
@@ -354,8 +389,17 @@ namespace Book_Downloader
             PageNumberBox.Enabled = true;
         }
 
-
         #endregion
+
+        private void HideButton_Click(object sender, EventArgs e)
+        {
+            Grid.Visible = false;
+        }
+
+        private void ShowButton_Click(object sender, EventArgs e)
+        {
+            Grid.Visible = true;
+        }
 
     }
 }

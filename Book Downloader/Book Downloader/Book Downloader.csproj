@@ -45,9 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackGroundChange.cs" />
     <Compile Include="BaseLogger.cs" />
+    <Compile Include="ButtonGroup.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ClickMethods.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomLabel.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DefaultPrecendce.cs" />
     <Compile Include="DownloadSession.cs">

@@ -7,14 +7,28 @@ using System.Windows.Forms;
 
 namespace Book_Downloader
 {
+
     static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main()
+
+        [STAThread]
+        static void Main(string[] args)
         {
             CreateDownloadFolder();
+            BackgroundChange change=BackgroundChange.Always;
+            if (args.Length > 0)
+            {
+                try {
+                    change = (BackgroundChange)Enum.Parse(typeof(BackgroundChange), args[0]);
+                }
+                catch(ArgumentException ae)
+                {
+
+                }
+            }
 
             IPrecedenceCreator picker = new DefaultPrecedencePicker();
             ILogger logger = new DefaultLogger();
@@ -28,7 +42,8 @@ namespace Book_Downloader
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainFormController(picker, logger));
+
+            Application.Run(new MainFormController(picker, logger,change));
         }
 
         private static void CreateDownloadFolder()
@@ -46,7 +61,7 @@ namespace Book_Downloader
                 }
                 catch (IOException) { }
             }
-            Environment.SetEnvironmentVariable("BookDownloader", string.Format("{0}BookDownloader", biggest.Name), EnvironmentVariableTarget.User);
+            Environment.SetEnvironmentVariable("BookDownloader", string.Format(@"{0}BookDownloader\", biggest.Name), EnvironmentVariableTarget.Process);
             Directory.CreateDirectory(string.Format("{0}BookDownloader", biggest.Name));
         }
     }

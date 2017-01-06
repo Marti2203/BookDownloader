@@ -16,6 +16,7 @@ namespace Book_Downloader
             LockInputFields();
             Grid.Rows.Clear();
             Grid.Refresh();
+            Grid.Visible = true;
 
             new Thread(() =>
             {
@@ -55,7 +56,9 @@ namespace Book_Downloader
                 LockButtons();
                 OutputTextBox.Clear();
 
-                new Thread(() => StartDownload((string)Grid["Address", e.RowIndex].Value, (string)Grid["Extension", e.RowIndex].Value)).Start();
+                DialogResult result = folderBrowserDialog1.ShowDialog();
+                string test= folderBrowserDialog1.Description;
+                new Thread(() => Download(Grid["Address", e.RowIndex].Value as string, Grid["Extension", e.RowIndex].Value as string)).Start();
             }
         }
 

@@ -15,6 +15,7 @@ namespace Book_Downloader
             Invoke(new MethodInvoker(() => OutputTextBox.Text = string.Format("Current Progress :{0}% {1}", e.ProgressPercentage, ((DownloadSession)sender).FileName)));
         }
 
+        [Obsolete]
         public void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
             Invoke(new MethodInvoker(() =>
@@ -41,17 +42,11 @@ namespace Book_Downloader
             else
             {
                 Invoke(new MethodInvoker(() => OutputTextBox.AppendText($"Done with {((DownloadSession)sender).FileName}")));
-                
-#if Debug
-
-#else
-                File.Move(((DownloadSession)sender).FileName, Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + ((DownloadSession)sender).FileName);
-#endif
             }
 
             IsDownloading = false;
 
-            if (NotifyBox.Checked)
+            if (NotifyOnDone)
                 Invoke(new MethodInvoker(() => Notify()));
 
         }
@@ -82,7 +77,7 @@ namespace Book_Downloader
             else
             {
                 Invoke(new MethodInvoker(() => OutputTextBox.Text = $"Finished downloading for {((DownloadSession)sender).FileName}"));
-                File.WriteAllBytes(string.Format(@"\\?\{0}{1}", Environment.GetEnvironmentVariable("BookDownloader"), ((DownloadSession)sender).FileName), e.Result);
+                File.WriteAllBytes(string.Format(@"\\?\{0}{1}", DownloadLocation, ((DownloadSession)sender).FileName), e.Result);
             }
         }
 
@@ -106,6 +101,10 @@ namespace Book_Downloader
             Show();
             WindowState = FormWindowState.Normal;
         }
-        
+
+        private void NotifyBox_CheckedChanged(object sender, EventArgs e)
+        {
+            NotifyOnDone = !NotifyOnDone;
+        }
     }
 }
