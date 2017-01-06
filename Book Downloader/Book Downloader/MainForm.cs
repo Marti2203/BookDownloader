@@ -52,6 +52,7 @@ namespace Book_Downloader
 
         public MainFormController(IPrecedenceCreator precedence, ILogger logger, BackgroundChange change)
         {
+            
             InitializeComponent();
 
             _logger = logger;
@@ -59,6 +60,9 @@ namespace Book_Downloader
 
             if (change > BackgroundChange.Never) SetBackground();
             if (change == BackgroundChange.Always) ChangeOnResize = true;
+            if (change == BackgroundChange.Never)
+            new[] { LargeAmountLabel,MediumAmountLabel,SmallAmountLabel,NameLabel,StatusLabel,NotifyLabel,ErrorLabel,PageLabel}
+            .ToList().ForEach(element => element.OutlineForeColor = Color.Gray); ;
 
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
@@ -155,8 +159,6 @@ namespace Book_Downloader
             string[] filterBookNames = bookNames.Select(element => CreateFilterName(element)).ToArray();
 
             HasNextPage = CheckForNextPage(lines);
-
-            Invoke(new MethodInvoker(() => OutputTextBox.Text = HasNextPage.ToString()));
 
             SetView(bookNames, filterBookNames, downloadAddresses, languages, extensions);
         }

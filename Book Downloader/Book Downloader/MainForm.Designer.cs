@@ -159,7 +159,7 @@
             // PageNumberBox
             // 
             this.PageNumberBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PageNumberBox.Location = new System.Drawing.Point(298, 29);
+            this.PageNumberBox.Location = new System.Drawing.Point(297, 29);
             this.PageNumberBox.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -171,7 +171,7 @@
             0,
             0});
             this.PageNumberBox.Name = "PageNumberBox";
-            this.PageNumberBox.Size = new System.Drawing.Size(385, 20);
+            this.PageNumberBox.Size = new System.Drawing.Size(384, 20);
             this.PageNumberBox.TabIndex = 11;
             this.PageNumberBox.Value = new decimal(new int[] {
             1,
@@ -265,7 +265,7 @@
             this.SearchBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SearchBox.Location = new System.Drawing.Point(3, 29);
             this.SearchBox.Name = "SearchBox";
-            this.SearchBox.Size = new System.Drawing.Size(289, 20);
+            this.SearchBox.Size = new System.Drawing.Size(288, 20);
             this.SearchBox.TabIndex = 2;
             // 
             // NameLabel
@@ -279,7 +279,7 @@
             this.NameLabel.Name = "NameLabel";
             this.NameLabel.OutlineForeColor = System.Drawing.Color.Black;
             this.NameLabel.OutlineWidth = 2F;
-            this.NameLabel.Size = new System.Drawing.Size(289, 26);
+            this.NameLabel.Size = new System.Drawing.Size(288, 26);
             this.NameLabel.TabIndex = 24;
             this.NameLabel.Text = "Name";
             // 
@@ -290,11 +290,11 @@
             this.PageLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.PageLabel.ForeColor = System.Drawing.Color.White;
-            this.PageLabel.Location = new System.Drawing.Point(298, 0);
+            this.PageLabel.Location = new System.Drawing.Point(297, 0);
             this.PageLabel.Name = "PageLabel";
             this.PageLabel.OutlineForeColor = System.Drawing.Color.Black;
             this.PageLabel.OutlineWidth = 2F;
-            this.PageLabel.Size = new System.Drawing.Size(385, 26);
+            this.PageLabel.Size = new System.Drawing.Size(384, 26);
             this.PageLabel.TabIndex = 25;
             this.PageLabel.Text = "Page";
             // 
@@ -399,7 +399,7 @@
             this.MainPanel.ColumnCount = 3;
             this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 42.99674F));
             this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 57.00326F));
-            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 191F));
+            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 193F));
             this.MainPanel.Controls.Add(this.tableLayoutPanel2, 2, 1);
             this.MainPanel.Controls.Add(this.flowLayoutPanel4, 2, 0);
             this.MainPanel.Controls.Add(this.PageNumberBox, 1, 1);
@@ -426,11 +426,11 @@
             this.tableLayoutPanel2.Controls.Add(this.ShowButton, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.FilterButton, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.HideButton, 2, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(689, 29);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(687, 29);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(186, 43);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(188, 43);
             this.tableLayoutPanel2.TabIndex = 47;
             // 
             // ShowButton
@@ -451,7 +451,7 @@
             this.HideButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.HideButton.Location = new System.Drawing.Point(127, 3);
             this.HideButton.Name = "HideButton";
-            this.HideButton.Size = new System.Drawing.Size(56, 37);
+            this.HideButton.Size = new System.Drawing.Size(58, 37);
             this.HideButton.TabIndex = 41;
             this.HideButton.Text = "Hide Grid";
             this.HideButton.UseVisualStyleBackColor = true;
@@ -462,9 +462,9 @@
             this.flowLayoutPanel4.Controls.Add(this.NotifyLabel);
             this.flowLayoutPanel4.Controls.Add(this.NotifyBox);
             this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(689, 3);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(687, 3);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(186, 20);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(188, 20);
             this.flowLayoutPanel4.TabIndex = 44;
             // 
             // ButtonPanel
