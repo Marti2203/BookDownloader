@@ -64,5 +64,6 @@ namespace Book_Downloader
             Environment.SetEnvironmentVariable("BookDownloader", string.Format(@"{0}BookDownloader\", biggest.Name), EnvironmentVariableTarget.Process);
             Directory.CreateDirectory(string.Format("{0}BookDownloader", biggest.Name));
         }
+        
     }
 }

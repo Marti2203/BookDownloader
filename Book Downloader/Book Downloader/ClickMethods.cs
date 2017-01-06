@@ -56,10 +56,17 @@ namespace Book_Downloader
                 LockButtons();
                 OutputTextBox.Clear();
 
-                DialogResult result = folderBrowserDialog1.ShowDialog();
-                string test= folderBrowserDialog1.Description;
+                SetDownloadLocationIfWanted();
+
                 new Thread(() => Download(Grid["Address", e.RowIndex].Value as string, Grid["Extension", e.RowIndex].Value as string)).Start();
             }
+        }
+
+        private void SetDownloadLocationIfWanted()
+        {
+            DialogResult result = folderBrowserDialog1.ShowDialog();
+            if (result == DialogResult.Yes)
+                DownloadLocation = folderBrowserDialog1.SelectedPath;
         }
 
         private void ChainDownloadButton_Click(object sender, EventArgs e)
@@ -97,6 +104,17 @@ namespace Book_Downloader
             ChainDownloadThread.Abort();
             OutputTextBox.Text = $"Chain downloading for {SearchText} Stopped at page {CurrentPage}";
             Invoke(new MethodInvoker(() => { UnlockButtons(); UnlockInputFields(); }));
+        }
+
+
+        private void HideButton_Click(object sender, EventArgs e)
+        {
+            Grid.Visible = false;
+        }
+
+        private void ShowButton_Click(object sender, EventArgs e)
+        {
+            Grid.Visible = true;
         }
     }
 }

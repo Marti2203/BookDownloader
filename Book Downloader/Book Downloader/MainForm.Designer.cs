@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFormController));
             this.Grid = new System.Windows.Forms.DataGridView();
             this.FindButton = new System.Windows.Forms.Button();
             this.OutputTextBox = new System.Windows.Forms.TextBox();
@@ -54,6 +55,9 @@
             this.StatusPanel = new System.Windows.Forms.Panel();
             this.ErrorPanel = new System.Windows.Forms.Panel();
             this.MainPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.ShowButton = new System.Windows.Forms.Button();
+            this.HideButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtonPanel = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -62,22 +66,19 @@
             this.RadioPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.RadioButtonLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.ShowButton = new System.Windows.Forms.Button();
-            this.HideButton = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PageNumberBox)).BeginInit();
             this.StatusPanel.SuspendLayout();
             this.ErrorPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
             this.ButtonPanel.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.RadioButtonLayout.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // Grid
@@ -170,7 +171,7 @@
             0,
             0});
             this.PageNumberBox.Name = "PageNumberBox";
-            this.PageNumberBox.Size = new System.Drawing.Size(386, 20);
+            this.PageNumberBox.Size = new System.Drawing.Size(385, 20);
             this.PageNumberBox.TabIndex = 11;
             this.PageNumberBox.Value = new decimal(new int[] {
             1,
@@ -293,7 +294,7 @@
             this.PageLabel.Name = "PageLabel";
             this.PageLabel.OutlineForeColor = System.Drawing.Color.Black;
             this.PageLabel.OutlineWidth = 2F;
-            this.PageLabel.Size = new System.Drawing.Size(386, 26);
+            this.PageLabel.Size = new System.Drawing.Size(385, 26);
             this.PageLabel.TabIndex = 25;
             this.PageLabel.Text = "Page";
             // 
@@ -398,7 +399,7 @@
             this.MainPanel.ColumnCount = 3;
             this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 42.99674F));
             this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 57.00326F));
-            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 190F));
+            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 191F));
             this.MainPanel.Controls.Add(this.tableLayoutPanel2, 2, 1);
             this.MainPanel.Controls.Add(this.flowLayoutPanel4, 2, 0);
             this.MainPanel.Controls.Add(this.PageNumberBox, 1, 1);
@@ -414,14 +415,56 @@
             this.MainPanel.Size = new System.Drawing.Size(878, 75);
             this.MainPanel.TabIndex = 35;
             // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.AutoSize = true;
+            this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableLayoutPanel2.ColumnCount = 3;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.Controls.Add(this.ShowButton, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.FilterButton, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.HideButton, 2, 0);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(689, 29);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 1;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(186, 43);
+            this.tableLayoutPanel2.TabIndex = 47;
+            // 
+            // ShowButton
+            // 
+            this.ShowButton.AutoSize = true;
+            this.ShowButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ShowButton.Location = new System.Drawing.Point(65, 3);
+            this.ShowButton.Name = "ShowButton";
+            this.ShowButton.Size = new System.Drawing.Size(56, 37);
+            this.ShowButton.TabIndex = 45;
+            this.ShowButton.Text = "Show Grid";
+            this.ShowButton.UseVisualStyleBackColor = true;
+            this.ShowButton.Click += new System.EventHandler(this.ShowButton_Click);
+            // 
+            // HideButton
+            // 
+            this.HideButton.AutoSize = true;
+            this.HideButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.HideButton.Location = new System.Drawing.Point(127, 3);
+            this.HideButton.Name = "HideButton";
+            this.HideButton.Size = new System.Drawing.Size(56, 37);
+            this.HideButton.TabIndex = 41;
+            this.HideButton.Text = "Hide Grid";
+            this.HideButton.UseVisualStyleBackColor = true;
+            this.HideButton.Click += new System.EventHandler(this.HideButton_Click);
+            // 
             // flowLayoutPanel4
             // 
             this.flowLayoutPanel4.Controls.Add(this.NotifyLabel);
             this.flowLayoutPanel4.Controls.Add(this.NotifyBox);
             this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(690, 3);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(689, 3);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(185, 20);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(186, 20);
             this.flowLayoutPanel4.TabIndex = 44;
             // 
             // ButtonPanel
@@ -522,48 +565,6 @@
             this.RadioButtonLayout.Size = new System.Drawing.Size(878, 25);
             this.RadioButtonLayout.TabIndex = 44;
             // 
-            // ShowButton
-            // 
-            this.ShowButton.AutoSize = true;
-            this.ShowButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ShowButton.Location = new System.Drawing.Point(64, 3);
-            this.ShowButton.Name = "ShowButton";
-            this.ShowButton.Size = new System.Drawing.Size(55, 37);
-            this.ShowButton.TabIndex = 45;
-            this.ShowButton.Text = "Show Grid";
-            this.ShowButton.UseVisualStyleBackColor = true;
-            this.ShowButton.Click += new System.EventHandler(this.ShowButton_Click);
-            // 
-            // HideButton
-            // 
-            this.HideButton.AutoSize = true;
-            this.HideButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.HideButton.Location = new System.Drawing.Point(125, 3);
-            this.HideButton.Name = "HideButton";
-            this.HideButton.Size = new System.Drawing.Size(57, 37);
-            this.HideButton.TabIndex = 41;
-            this.HideButton.Text = "Hide Grid";
-            this.HideButton.UseVisualStyleBackColor = true;
-            this.HideButton.Click += new System.EventHandler(this.HideButton_Click);
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.AutoSize = true;
-            this.tableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel2.ColumnCount = 3;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel2.Controls.Add(this.ShowButton, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.FilterButton, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.HideButton, 2, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(690, 29);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(185, 43);
-            this.tableLayoutPanel2.TabIndex = 47;
-            // 
             // MainFormController
             // 
             this.AcceptButton = this.FindButton;
@@ -579,6 +580,7 @@
             this.Controls.Add(this.ErrorPanel);
             this.Controls.Add(this.StatusPanel);
             this.Controls.Add(this.Grid);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainFormController";
             this.Text = "Book Downloader";
             ((System.ComponentModel.ISupportInitialize)(this.Grid)).EndInit();
@@ -589,6 +591,8 @@
             this.ErrorPanel.PerformLayout();
             this.MainPanel.ResumeLayout(false);
             this.MainPanel.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             this.flowLayoutPanel4.ResumeLayout(false);
             this.flowLayoutPanel4.PerformLayout();
             this.ButtonPanel.ResumeLayout(false);
@@ -600,8 +604,6 @@
             this.flowLayoutPanel3.PerformLayout();
             this.RadioButtonLayout.ResumeLayout(false);
             this.RadioButtonLayout.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

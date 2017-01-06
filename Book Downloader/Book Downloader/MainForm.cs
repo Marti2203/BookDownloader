@@ -11,6 +11,7 @@ using System.Threading;
 using System.Collections;
 using static Book_Downloader.WebPageScraper;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace Book_Downloader
 {
@@ -155,6 +156,8 @@ namespace Book_Downloader
 
             HasNextPage = CheckForNextPage(lines);
 
+            Invoke(new MethodInvoker(() => OutputTextBox.Text = HasNextPage.ToString()));
+
             SetView(bookNames, filterBookNames, downloadAddresses, languages, extensions);
         }
 
@@ -211,6 +214,7 @@ namespace Book_Downloader
             CurrentPage = PageNumberBox.Text;
             SearchText = SearchBox.Text;
             bool currentHasNextPage;
+            SetDownloadLocationIfWanted();
             do
             {
                 IsDownloading = true;
@@ -218,7 +222,7 @@ namespace Book_Downloader
                     Filter();
                 Invoke(new MethodInvoker(() =>
                 {
-                    OutputTextBox.AppendText($"Starting Page { CurrentPage }\n\n");
+                    OutputTextBox.AppendText($"\n\nStarting Page { CurrentPage }\n\n");
                 }));
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
@@ -229,22 +233,19 @@ namespace Book_Downloader
                         Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
                         return;
                     }
-                    if (File.Exists(Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.User) + fileName))
+                    if (File.Exists(DownloadLocation + fileName))
                     {
                         Invoke(new MethodInvoker(() => OutputTextBox.AppendText($"File {fileName} Exists\n\n")));
                         continue;
                     }
                     using (WebClient client = new WebClient())
                     {
-                        Invoke(new MethodInvoker(() =>
-                        {
-                            OutputTextBox.AppendText($"Started Download of {fileName}\n\n");
-                        }));
+                        Invoke(new MethodInvoker(() => OutputTextBox.AppendText($"Started Download of {fileName}\n\n")));
                         try
                         {
                             File.WriteAllBytes(
                                 string.Format(@"\\?\{0}{1}{2}",
-                                    Environment.GetEnvironmentVariable("BookDownloader"),
+                                    DownloadLocation,
                                     fileName,
                                     needExtension ? row.Cells["Extension"].Value : string.Empty)
                                 , client.DownloadData(downloadAddress));
@@ -268,7 +269,7 @@ namespace Book_Downloader
                     }
                     Invoke(new MethodInvoker(() =>
                     {
-                        OutputTextBox.AppendText($"Successful Download of {fileName}\n");
+                        OutputTextBox.AppendText($"Successful Download of {fileName}\n\n");
                     }));
                     EndOfFor:
 
@@ -277,7 +278,9 @@ namespace Book_Downloader
                 currentHasNextPage = HasNextPage;
                 CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
             } while (currentHasNextPage);
+
             IsDownloading = false;
+
             Invoke(new MethodInvoker(() =>
             {
                 OutputTextBox.AppendText($"Finished Chain Downloading \n");
@@ -358,7 +361,6 @@ namespace Book_Downloader
         private string GetLanguageFromDataGrid(int row) => Grid["Language", row].Value as string;
         private string GetExtensionFromDataGrid(int row) => Grid["Extension", row].Value as string;
 
-
         #region Lock/Unlock
 
         private void LockButtons()
@@ -391,15 +393,13 @@ namespace Book_Downloader
 
         #endregion
 
-        private void HideButton_Click(object sender, EventArgs e)
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            Grid.Visible = false;
+            if (keyData == (Keys.Control | Keys.Q))
+            {
+                Close();
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
-
-        private void ShowButton_Click(object sender, EventArgs e)
-        {
-            Grid.Visible = true;
-        }
-
     }
 }

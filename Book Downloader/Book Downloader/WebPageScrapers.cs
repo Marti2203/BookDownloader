@@ -65,7 +65,7 @@ namespace Book_Downloader
             .ToArray();
 
         public static bool CheckForNextPage(string[] lines)
-            => lines.Last().StartsWith("< table width = \"100%\" >");
+            => lines.Last().Contains("search.php?");
 
         public static string DownloadKey(string hyperText)
             => CombinedLine(hyperText)
