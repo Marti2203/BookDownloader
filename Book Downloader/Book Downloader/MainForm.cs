@@ -24,17 +24,17 @@ namespace Book_Downloader
 
         private readonly IPrecedenceCreator _precedence;
 
-        private DownloadSession CurrentSession { get; set; }
+        public BackgroundHandler Handler { get; set; }
+
+        public ButtonGroup<string> Group { get; set; }
+
+        private DownloadSession CurrentSession;
 
         private Thread ChainDownloadThread { get; set; }
 
-        private ButtonGroup<string> Group { get; set; }
-
-        private string DownloadLocation { get; set; } = Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.Process);
-
-        private string CurrentPage { get; set; }
-
-        private string SearchText { get; set; }
+        private string downloadLocation = Environment.GetEnvironmentVariable("BookDownloader", EnvironmentVariableTarget.Process);
+        private string currentPage;
+        private string searchText;
 
         #region Information Booleans
 
@@ -46,23 +46,11 @@ namespace Book_Downloader
 
         private bool NotifyOnDone { get; set; } = false;
 
-        private bool ChangeOnResize { get; set; }
-
         #endregion
 
-        public MainFormController(IPrecedenceCreator precedence, ILogger logger, BackgroundChange change)
+        private MainFormController()
         {
-            
             InitializeComponent();
-
-            _logger = logger;
-            _precedence = precedence;
-
-            if (change > BackgroundChange.Never) SetBackground();
-            if (change == BackgroundChange.Always) ChangeOnResize = true;
-            if (change == BackgroundChange.Never)
-            new[] { LargeAmountLabel,MediumAmountLabel,SmallAmountLabel,NameLabel,StatusLabel,NotifyLabel,ErrorLabel,PageLabel}
-            .ToList().ForEach(element => element.OutlineForeColor = Color.Gray); ;
 
             #region Create Columns
             Grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Name", ReadOnly = true });
@@ -79,9 +67,6 @@ namespace Book_Downloader
             StopChainDownloadButton.Enabled = false;
             #endregion
 
-            Grid.Left = (this.ClientSize.Width - Grid.Width) / 2;
-            Grid.Top = (this.ClientSize.Height - Grid.Height) / 2;
-
             #region Radio Button Group
             Group = new ButtonGroup<string>(new[]{
                 new Tuple<RadioButton,string>(LargeAmountButton,"100"),
@@ -90,33 +75,31 @@ namespace Book_Downloader
             #endregion
 
             #region Draw Styles
-            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            this.SetStyle(ControlStyles.UserPaint, true);
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-            #endregion 
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            #endregion
 
+
+            Grid.Left = (this.ClientSize.Width - Grid.Width) / 2;
+            Grid.Top = (this.ClientSize.Height - Grid.Height) / 2;
+        }
+
+        public MainFormController(IPrecedenceCreator precedence, ILogger logger, BackgroundChange change):this()
+        {     
+            _logger = logger;
+            _precedence = precedence;
+            Handler = new DefaultBackgroundHandler(change, this);
         }
 
         protected override void OnSizeChanged(EventArgs e)
         {
-            if (ChangeOnResize)
-                new Thread(() => SetBackground()).Start();
-            Grid.Left = (this.ClientSize.Width - Grid.Width) / 2;
-            Grid.Top = (this.ClientSize.Height - Grid.Height) / 2;
-
-            //Grid.Width = this.ClientSize.Width - ErrorPanel.Width-StatusPanel.Width;
-            //Grid.Height = this.ClientSize.Height - MainPanel.Height - RadioPanel.Height-ButtonPanel.Height;
+            if(Handler!=null)
+            new Thread(()=>Handler.Resized()).Start();
+            Grid.Left = (ClientSize.Width - Grid.Width) / 2;
+            Grid.Top = (ClientSize.Height - Grid.Height) / 2;
 
             base.OnSizeChanged(e);
-        }
-
-        private void SetBackground()
-        {
-            using (WebClient client = new WebClient())
-            {
-                client.DownloadDataAsync(new Uri($"https://unsplash.it/{Width}/{Height}/?random"));
-                client.DownloadDataCompleted += Client_DownloadDataCompleted;
-            }
         }
 
         private void SetView
@@ -213,10 +196,9 @@ namespace Book_Downloader
 
         public void BeginChainDownloading()
         {
-            CurrentPage = PageNumberBox.Text;
-            SearchText = SearchBox.Text;
+            currentPage = PageNumberBox.Text;
+            searchText = SearchBox.Text;
             bool currentHasNextPage;
-            SetDownloadLocationIfWanted();
             do
             {
                 IsDownloading = true;
@@ -224,7 +206,7 @@ namespace Book_Downloader
                     Filter();
                 Invoke(new MethodInvoker(() =>
                 {
-                    OutputTextBox.AppendText($"\n\nStarting Page { CurrentPage }\n\n");
+                    OutputTextBox.AppendText($"\n\nStarting Page { currentPage } \n\n");
                 }));
                 foreach (DataGridViewRow row in Grid.Rows)
                 {
@@ -235,7 +217,7 @@ namespace Book_Downloader
                         Invoke(new MethodInvoker(() => ErrorTextBox.Text = "Timed Out. Please try again later."));
                         return;
                     }
-                    if (File.Exists(DownloadLocation + fileName))
+                    if (File.Exists(downloadLocation + fileName))
                     {
                         Invoke(new MethodInvoker(() => OutputTextBox.AppendText($"File {fileName} Exists\n\n")));
                         continue;
@@ -247,7 +229,7 @@ namespace Book_Downloader
                         {
                             File.WriteAllBytes(
                                 string.Format(@"\\?\{0}{1}{2}",
-                                    DownloadLocation,
+                                    downloadLocation,
                                     fileName,
                                     needExtension ? row.Cells["Extension"].Value : string.Empty)
                                 , client.DownloadData(downloadAddress));
@@ -266,19 +248,16 @@ namespace Book_Downloader
                                 ErrorTextBox.AppendText($"{we.InnerException?.StackTrace}\n");
                                 OutputTextBox.AppendText($"Download For {fileName} failed.\n\n");
                             }));
-                            goto EndOfFor;
+                            continue;
                         }
                     }
                     Invoke(new MethodInvoker(() =>
                     {
                         OutputTextBox.AppendText($"Successful Download of {fileName}\n\n");
                     }));
-                    EndOfFor:
-
-                    ;
                 }
                 currentHasNextPage = HasNextPage;
-                CreatePage(SearchText, CurrentPage = (int.Parse(CurrentPage) + 1).ToString());
+                CreatePage(searchText, currentPage = (int.Parse(currentPage) + 1).ToString());
             } while (currentHasNextPage);
 
             IsDownloading = false;
@@ -371,6 +350,7 @@ namespace Book_Downloader
             FindButton.Enabled = false;
             ChainDownloadButton.Enabled = false;
             NotifyBox.Enabled = false;
+            DownloadLocationButton.Enabled = false;
         }
 
         private void UnlockButtons()
@@ -379,6 +359,7 @@ namespace Book_Downloader
             FindButton.Enabled = true;
             ChainDownloadButton.Enabled = true;
             NotifyBox.Enabled = true;
+            DownloadLocationButton.Enabled = true;
         }
 
         private void LockInputFields()
@@ -403,5 +384,7 @@ namespace Book_Downloader
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+
     }
 }

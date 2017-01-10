@@ -1,28 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Book_Downloader
 {
-    class SpeciaRadioButton<V> : RadioButton
-    {
-        public V Value { get; set; }
-        public override bool Equals(object obj)
-        {
-            if (this == null || obj == null) return false;
-            if (this.GetType() != obj.GetType())
-                return false;
-            return Value.Equals((obj as SpeciaRadioButton<V>).Value);
-        }
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-    }
-        class ButtonGroup<V>
+    public class ButtonGroup<V>
     {
         private readonly Dictionary<RadioButton, V> _elements;
         private RadioButton last;

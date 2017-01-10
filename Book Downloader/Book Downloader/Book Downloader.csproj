@@ -46,16 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackGroundChange.cs" />
+    <Compile Include="BackgroundHandler.cs" />
     <Compile Include="BaseLogger.cs" />
-    <Compile Include="ButtonGroup.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="ButtonGroup.cs" />
     <Compile Include="ClickMethods.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CustomLabel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="DefaultBackgroundHandler.cs" />
     <Compile Include="DefaultPrecendce.cs" />
     <Compile Include="DownloadSession.cs">
       <SubType>Component</SubType>
@@ -75,6 +75,9 @@
     <Compile Include="ILogger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValueRadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="WebClientMethods.cs">
       <SubType>Form</SubType>
     </Compile>

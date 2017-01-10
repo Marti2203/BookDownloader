@@ -59,6 +59,7 @@
             this.ShowButton = new System.Windows.Forms.Button();
             this.HideButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
+            this.DownloadLocationButton = new System.Windows.Forms.Button();
             this.ButtonPanel = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
@@ -123,9 +124,12 @@
             // 
             // FilterButton
             // 
+            this.FilterButton.AutoSize = true;
+            this.FilterButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.FilterButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FilterButton.Location = new System.Drawing.Point(3, 3);
             this.FilterButton.Name = "FilterButton";
-            this.FilterButton.Size = new System.Drawing.Size(55, 37);
+            this.FilterButton.Size = new System.Drawing.Size(90, 27);
             this.FilterButton.TabIndex = 8;
             this.FilterButton.Text = "Filter &Results";
             this.FilterButton.UseVisualStyleBackColor = true;
@@ -140,7 +144,7 @@
             this.NotifyBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.NotifyBox.Location = new System.Drawing.Point(107, 3);
             this.NotifyBox.Name = "NotifyBox";
-            this.NotifyBox.Size = new System.Drawing.Size(15, 14);
+            this.NotifyBox.Size = new System.Drawing.Size(15, 23);
             this.NotifyBox.TabIndex = 9;
             this.NotifyBox.UseVisualStyleBackColor = false;
             this.NotifyBox.CheckedChanged += new System.EventHandler(this.NotifyBox_CheckedChanged);
@@ -159,7 +163,7 @@
             // PageNumberBox
             // 
             this.PageNumberBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PageNumberBox.Location = new System.Drawing.Point(297, 29);
+            this.PageNumberBox.Location = new System.Drawing.Point(295, 35);
             this.PageNumberBox.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -171,7 +175,7 @@
             0,
             0});
             this.PageNumberBox.Name = "PageNumberBox";
-            this.PageNumberBox.Size = new System.Drawing.Size(384, 20);
+            this.PageNumberBox.Size = new System.Drawing.Size(286, 20);
             this.PageNumberBox.TabIndex = 11;
             this.PageNumberBox.Value = new decimal(new int[] {
             1,
@@ -263,9 +267,9 @@
             // 
             this.SearchBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.SearchBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.SearchBox.Location = new System.Drawing.Point(3, 29);
+            this.SearchBox.Location = new System.Drawing.Point(3, 35);
             this.SearchBox.Name = "SearchBox";
-            this.SearchBox.Size = new System.Drawing.Size(288, 20);
+            this.SearchBox.Size = new System.Drawing.Size(286, 20);
             this.SearchBox.TabIndex = 2;
             // 
             // NameLabel
@@ -279,7 +283,7 @@
             this.NameLabel.Name = "NameLabel";
             this.NameLabel.OutlineForeColor = System.Drawing.Color.Black;
             this.NameLabel.OutlineWidth = 2F;
-            this.NameLabel.Size = new System.Drawing.Size(288, 26);
+            this.NameLabel.Size = new System.Drawing.Size(286, 32);
             this.NameLabel.TabIndex = 24;
             this.NameLabel.Text = "Name";
             // 
@@ -290,11 +294,11 @@
             this.PageLabel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.PageLabel.ForeColor = System.Drawing.Color.White;
-            this.PageLabel.Location = new System.Drawing.Point(297, 0);
+            this.PageLabel.Location = new System.Drawing.Point(295, 0);
             this.PageLabel.Name = "PageLabel";
             this.PageLabel.OutlineForeColor = System.Drawing.Color.Black;
             this.PageLabel.OutlineWidth = 2F;
-            this.PageLabel.Size = new System.Drawing.Size(384, 26);
+            this.PageLabel.Size = new System.Drawing.Size(286, 32);
             this.PageLabel.TabIndex = 25;
             this.PageLabel.Text = "Page";
             // 
@@ -339,7 +343,7 @@
             this.NotifyLabel.Name = "NotifyLabel";
             this.NotifyLabel.OutlineForeColor = System.Drawing.Color.Black;
             this.NotifyLabel.OutlineWidth = 2F;
-            this.NotifyLabel.Size = new System.Drawing.Size(98, 20);
+            this.NotifyLabel.Size = new System.Drawing.Size(98, 29);
             this.NotifyLabel.TabIndex = 28;
             this.NotifyLabel.Text = "Notify On Done";
             // 
@@ -397,9 +401,9 @@
             // 
             this.MainPanel.BackColor = System.Drawing.Color.Transparent;
             this.MainPanel.ColumnCount = 3;
-            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 42.99674F));
-            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 57.00326F));
-            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 193F));
+            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.MainPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.MainPanel.Controls.Add(this.tableLayoutPanel2, 2, 1);
             this.MainPanel.Controls.Add(this.flowLayoutPanel4, 2, 0);
             this.MainPanel.Controls.Add(this.PageNumberBox, 1, 1);
@@ -410,8 +414,8 @@
             this.MainPanel.Location = new System.Drawing.Point(200, 0);
             this.MainPanel.Name = "MainPanel";
             this.MainPanel.RowCount = 2;
-            this.MainPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 35.61644F));
-            this.MainPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 64.38356F));
+            this.MainPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 42.66667F));
+            this.MainPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 57.33333F));
             this.MainPanel.Size = new System.Drawing.Size(878, 75);
             this.MainPanel.TabIndex = 35;
             // 
@@ -426,20 +430,20 @@
             this.tableLayoutPanel2.Controls.Add(this.ShowButton, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.FilterButton, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.HideButton, 2, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(687, 29);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(587, 35);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(188, 43);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(288, 33);
             this.tableLayoutPanel2.TabIndex = 47;
             // 
             // ShowButton
             // 
             this.ShowButton.AutoSize = true;
             this.ShowButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ShowButton.Location = new System.Drawing.Point(65, 3);
+            this.ShowButton.Location = new System.Drawing.Point(99, 3);
             this.ShowButton.Name = "ShowButton";
-            this.ShowButton.Size = new System.Drawing.Size(56, 37);
+            this.ShowButton.Size = new System.Drawing.Size(90, 27);
             this.ShowButton.TabIndex = 45;
             this.ShowButton.Text = "Show Grid";
             this.ShowButton.UseVisualStyleBackColor = true;
@@ -449,9 +453,9 @@
             // 
             this.HideButton.AutoSize = true;
             this.HideButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.HideButton.Location = new System.Drawing.Point(127, 3);
+            this.HideButton.Location = new System.Drawing.Point(195, 3);
             this.HideButton.Name = "HideButton";
-            this.HideButton.Size = new System.Drawing.Size(58, 37);
+            this.HideButton.Size = new System.Drawing.Size(90, 27);
             this.HideButton.TabIndex = 41;
             this.HideButton.Text = "Hide Grid";
             this.HideButton.UseVisualStyleBackColor = true;
@@ -461,11 +465,24 @@
             // 
             this.flowLayoutPanel4.Controls.Add(this.NotifyLabel);
             this.flowLayoutPanel4.Controls.Add(this.NotifyBox);
+            this.flowLayoutPanel4.Controls.Add(this.DownloadLocationButton);
             this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(687, 3);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(587, 3);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(188, 20);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(288, 26);
             this.flowLayoutPanel4.TabIndex = 44;
+            // 
+            // DownloadLocationButton
+            // 
+            this.DownloadLocationButton.AutoSize = true;
+            this.DownloadLocationButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DownloadLocationButton.Location = new System.Drawing.Point(128, 3);
+            this.DownloadLocationButton.Name = "DownloadLocationButton";
+            this.DownloadLocationButton.Size = new System.Drawing.Size(128, 23);
+            this.DownloadLocationButton.TabIndex = 45;
+            this.DownloadLocationButton.Text = "Set Download Location";
+            this.DownloadLocationButton.UseVisualStyleBackColor = true;
+            this.DownloadLocationButton.Click += new System.EventHandler(this.DownloadLocationButton_Click);
             // 
             // ButtonPanel
             // 
@@ -647,6 +664,7 @@
         private System.Windows.Forms.Button HideButton;
         private System.Windows.Forms.Button ShowButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Button DownloadLocationButton;
     }
 }
 

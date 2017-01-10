@@ -54,6 +54,8 @@ namespace Book_Downloader
         private void DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
         {
             IsDownloading = false;
+            if (NotifyOnDone)
+                Invoke(new MethodInvoker(() => Notify()));
             Invoke(new MethodInvoker(() =>
             {
                 UnlockButtons();
@@ -77,22 +79,8 @@ namespace Book_Downloader
             else
             {
                 Invoke(new MethodInvoker(() => OutputTextBox.Text = $"Finished downloading for {((DownloadSession)sender).FileName}"));
-                File.WriteAllBytes(string.Format(@"\\?\{0}{1}", DownloadLocation, ((DownloadSession)sender).FileName), e.Result);
+                File.WriteAllBytes(string.Format(@"\\?\{0}{1}", downloadLocation, ((DownloadSession)sender).FileName), e.Result);
             }
-        }
-
-        private void Client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
-        {
-            if (e.Cancelled)
-            {
-                return;
-            }
-            if (e.Error != null)
-            {
-                return;
-            }
-            BackgroundImage = new Bitmap(new MemoryStream(e.Result));
-            Invoke(new MethodInvoker(() => Refresh()));
         }
 
         public void Notify()
